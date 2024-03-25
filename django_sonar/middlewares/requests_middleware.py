@@ -80,6 +80,7 @@ class RequestsMiddleware:
             }
 
         # Additional details
+        is_ajax = self.is_ajax(request)
         timestamp = make_aware(datetime.now())  # Make sure the timestamp is timezone-aware
         hostname = socket.gethostname()
         ip_address = self.get_client_ip(request)
@@ -87,9 +88,11 @@ class RequestsMiddleware:
 
         # Log or save the request details here
         request_id = uuid.uuid4()
+        print('-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-')
         print(f"Request Details: {request_id}")
         print(f"HTTP Verb: {http_verb}",
-              f"URL Path: {url_path}, HTTP Status: {http_status}, IP Address: {ip_address}, Hostname: {hostname}")
+              f"URL Path: {url_path}, HTTP Status: {http_status}, Ajax: {is_ajax}",
+              f"IP Address: {ip_address}, Hostname: {hostname}")
         print(f"User Info: {user_info}")
         print(f"Timestamp: {timestamp}, View Function: {view_func},"
               f"Middlewares Used: {middlewares_used}, "
@@ -113,5 +116,9 @@ class RequestsMiddleware:
             ip = request.META.get('REMOTE_ADDR')
         return ip
 
+    def is_ajax(self, request):
+        return request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+
     def get_post_payload(self, request):
-        return request.POST.copy()
+        post_data = request.POST.copy()
+        return post_data
