@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='django-sonar',
+    name='django_sonar',
     version='0.1.0',  # Start with a suitable version number for your project
     author='Metalogico',
     author_email='michele.brandolin@gmail.com',  # Replace with your email

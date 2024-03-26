@@ -1,0 +1,50 @@
+<div class="card border-light" hx-get="{% url 'sonar_requests' %}" hx-trigger="every 5s" hx-swap="outerHTML">
+    <div class="card-header">
+        <h5 class="card-title">Requests</h5>
+    </div>
+    <div class="card-body">
+        <table class="table table-dashed table-hover">
+            <thead>
+            <tr>
+                <th scope="col">Verb</th>
+                <th scope="col">Path</th>
+                <th scope="col">Status</th>
+                <th scope="col">Duration</th>
+                <th scope="col">Happened</th>
+                <th class="w-50px">&nbsp;</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for request in requests %}
+                <tr class="{% if not request.is_read %}table-active{% endif %}">
+                    <td>
+                        <span class="badge bg-secondary">{{ request.verb }}</span>
+                    </td>
+                    <td>{{ request.path }}</td>
+                    <td>
+                        {% if request.status == '200' %}
+                            <span class="badge bg-success">{{ request.status }}</span>
+                        {% elif request.status >= '400' and request.status < '500' %}
+                            <span class="badge bg-warning">{{ request.status }}</span>
+                        {% else %}
+                            <span class="badge bg-danger">{{ request.status }}</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ request.duration }}ms</td>
+                    <td>{{ request.created_at|timesince }}</td>
+                    <td class="text-end">
+                        <a class="btn btn-sm btn-icon btn-secondary"
+                           href="{% url 'sonar_request_detail' request.uuid %}"
+                           hx-get="{% url 'sonar_request_detail' request.uuid %}"
+                           hx-swap="innerHTML"
+                           hx-target="#main-content">
+                            <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+    </div>
+</div>

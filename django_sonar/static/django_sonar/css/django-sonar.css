@@ -48,3 +48,9 @@ a:hover {
 .card {
     background-color: #27293d;
 }
+
+.w-50px {
+    width: 50px !important;
+    min-width: 50px !important;
+    max-width: 50px !important;
+}

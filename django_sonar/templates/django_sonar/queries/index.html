@@ -1,0 +1,33 @@
+<div class="card border-light" hx-get="{% url 'sonar_queries' %}" hx-trigger="every 5s" hx-swap="outerHTML">
+    <div class="card-header">
+        <h5 class="card-title">Queries</h5>
+    </div>
+    <div class="card-body">
+
+        <table class="table table-dashed table-hover">
+            <thead>
+            <tr>
+                <th scope="col">Query</th>
+                <th scope="col">Duration</th>
+                <th scope="col">Happened</th>
+                <th class="w-50px">&nbsp;</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for query in queries %}
+            <tr>
+                <td><code>{{ query.sql|truncatechars:90 }}</code></td>
+                <td>{{ query.time }}ms</td>
+                <td>{{ query.created_at|timesince }}</td>
+                <td>
+                    <a class="btn btn-sm btn-icon btn-secondary">
+                        <i class="bi bi-arrow-right"></i>
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+    </div>
+</div>

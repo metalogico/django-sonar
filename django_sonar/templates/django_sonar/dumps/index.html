@@ -1,0 +1,31 @@
+<div class="card border-light" hx-get="{% url 'sonar_dumps' %}" hx-trigger="every 5s" hx-swap="outerHTML">
+    <div class="card-header">
+        <h5 class="card-title">Dumps</h5>
+    </div>
+    <div class="card-body">
+
+        <table class="table table-dashed table-hover">
+            <thead>
+            <tr>
+                <th scope="col">Dump</th>
+                <th scope="col" class="text-end">Happened</th>
+                <th class="w-50px text-end">&nbsp;</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for dump in dumps %}
+            <tr class="align-middle">
+                <td><code>{{ dump.data|safe }}</code></td>
+                <td class="text-end">{{ dump.created_at|timesince }}</td>
+                <td class="w-50px text-end">
+                    <a class="btn btn-sm btn-icon btn-secondary">
+                        <i class="bi bi-arrow-right"></i>
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+    </div>
+</div>

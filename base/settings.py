@@ -36,7 +36,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    "django_sonar.apps.Django_sonarConfig"
+    "django_sonar.apps.DjangoSonarConfig",
 ]
 
 MIDDLEWARE = [
