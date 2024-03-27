@@ -1,7 +1,165 @@
-<div class="card border-light">
+<div class="card border-light mb-3">
     <div class="card-header">
         <h5 class="card-title">Request: {{ sonar_request.uuid }}</h5>
     </div>
     <div class="card-body">
+        <div class="row">
+            <div class="col-3 text-muted">Time</div>
+            <div class="col-9">
+                {{ sonar_request.created_at }} ({{ sonar_request.created_at|timesince }} ago)
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-3 text-muted">Is Ajax</div>
+            <div class="col-9">
+                {{ sonar_request.is_ajax }}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-3 text-muted">Hostname</div>
+            <div class="col-9">
+                {{ sonar_request.hostname }}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-3 text-muted">Method</div>
+            <div class="col-9">
+                {{ sonar_request.verb }}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-3 text-muted">View function</div>
+            <div class="col-9">
+                {{ sonar_request.details.view_func }}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-3 text-muted">Path</div>
+            <div class="col-9">
+                {{ sonar_request.path }}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-3 text-muted">Status</div>
+            <div class="col-9">
+                {% if sonar_request.status == '200' %}
+                    <span class="badge bg-success">{{ sonar_request.status }}</span>
+                {% elif sonar_request.status >= '400' and sonar_request.status < '500' %}
+                    <span class="badge bg-warning">{{ sonar_request.status }}</span>
+                {% else %}
+                    <span class="badge bg-danger">{{ sonar_request.status }}</span>
+                {% endif %}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-3 text-muted">Duration</div>
+            <div class="col-9">
+                {{ sonar_request.duration }}ms
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-3 text-muted">IP Address</div>
+            <div class="col-9">
+                {{ sonar_request.ip_address }}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-3 text-muted">Memory Usage</div>
+            <div class="col-9">
+                {{ sonar_request.details.memory_used|floatformat:2 }} MB
+            </div>
+        </div>
+
+        {% if sonar_request.details.user_info.email %}
+            <div class="row border-top border-1 border-light pt-3">
+                <div class="col-3 text-muted">Auth User</div>
+                <div class="col-9">
+                    Id: <strong>{{ sonar_request.details.user_info.user_id }}</strong>
+                    <br>
+                    Email: <strong>{{ sonar_request.details.user_info.email }}</strong>
+                    <br>
+                    Username: <strong>{{ sonar_request.details.user_info.username }}</strong>
+                </div>
+            </div>
+        {% endif %}
     </div>
 </div>
+
+<ul class="nav nav-pills nav-detail">
+    <li class="nav-item">
+        <a class="nav-link active"
+           href="{% url 'sonar_detail_payload' sonar_request.uuid %}"
+           hx-get="{% url 'sonar_detail_payload' sonar_request.uuid %}"
+           hx-swap="innerHTML"
+           hx-trigger="click"
+           hx-target="#detail-content">Payload</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link"
+           href="{% url 'sonar_detail_headers' sonar_request.uuid %}"
+           hx-get="{% url 'sonar_detail_headers' sonar_request.uuid %}"
+           hx-swap="innerHTML"
+           hx-trigger="click"
+           hx-target="#detail-content">Headers</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link"
+           href="{% url 'sonar_detail_queries' sonar_request.uuid %}"
+           hx-get="{% url 'sonar_detail_queries' sonar_request.uuid %}"
+           hx-swap="innerHTML"
+           hx-trigger="click"
+           hx-target="#detail-content">Queries</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link"
+           href="{% url 'sonar_detail_dumps' sonar_request.uuid %}"
+           hx-get="{% url 'sonar_detail_dumps' sonar_request.uuid %}"
+           hx-swap="innerHTML"
+           hx-trigger="click"
+           hx-target="#detail-content">Dumps</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link"
+           href="{% url 'sonar_detail_session' sonar_request.uuid %}"
+           hx-get="{% url 'sonar_detail_session' sonar_request.uuid %}"
+           hx-swap="innerHTML"
+           hx-trigger="click"
+           hx-target="#detail-content">Session</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link"
+           href="{% url 'sonar_detail_middlewares' sonar_request.uuid %}"
+           hx-get="{% url 'sonar_detail_middlewares' sonar_request.uuid %}"
+           hx-swap="innerHTML"
+           hx-trigger="click"
+           hx-target="#detail-content">Middlewares</a>
+    </li>
+    {% if sonar_request.status >= '400' %}
+        <li class="nav-item">
+            <a class="nav-link"
+               href="{% url 'sonar_detail_exception' sonar_request.uuid %}"
+               hx-get="{% url 'sonar_detail_exception' sonar_request.uuid %}"
+               hx-swap="innerHTML"
+               hx-trigger="click"
+               hx-target="#detail-content">Exception</a>
+        </li>
+    {% endif %}
+</ul>
+<div id="detail-content">
+    <script>
+        htmx.ajax('GET', '{% url 'sonar_detail_payload' sonar_request.uuid %}', {target: '#detail-content'});
+    </script>
+</div>
+
+<script>
+    document.querySelectorAll('.nav-detail .nav-link').forEach(function (link) {
+        link.addEventListener('click', function () {
+            // Remove active class from all menu items
+            document.querySelectorAll('.nav-link').forEach(function (item) {
+                item.classList.remove('active');
+            });
+            // Add active class to the clicked menu item
+            this.classList.add('active');
+        });
+    });
+</script>

@@ -1,0 +1,40 @@
+<div class="card border-light mt-3">
+
+    <div class="card-body">
+
+        {% if payload.get_payload %}
+
+            <div class="fw-bold text-muted pb-2">
+                GET
+            </div>
+
+            {% for name, value in payload.get_payload.items %}
+                <div class="row">
+                    <div class="col border-bottom border-1 border-light pb-3">
+                        <strong>{{ name }}:</strong>
+                        <code>{{ value }}</code>
+                    </div>
+                </div>
+            {% endfor %}
+
+        {% endif %}
+
+
+        {% if payload.post_payload %}
+
+            <h6>GET</h6>
+
+            {% for name, value in payload.post_payload.items %}
+                <div class="row">
+                    <div class="col border-bottom border-1 border-light pb-3">
+                        <code>{{ name }}: {{ value }}</code>
+                    </div>
+                </div>
+            {% endfor %}
+
+        {% endif %}
+
+
+    </div>
+
+</div>

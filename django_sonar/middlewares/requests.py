@@ -1,5 +1,6 @@
 import socket
 import time
+import traceback
 import tracemalloc
 from datetime import datetime
 
@@ -15,6 +16,7 @@ from django_sonar.models import SonarRequest, SonarData
 class RequestsMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
+        self.sonar_request_uuid = None
         tracemalloc.start()  # Start tracing memory allocation
 
     def __call__(self, request):
@@ -56,7 +58,7 @@ class RequestsMiddleware:
 
         # memory used
         end_memory_usage = tracemalloc.get_traced_memory()[0]  # End memory usage
-        memory_diff = (end_memory_usage - start_memory_usage) / 1024  # Convert to KB
+        memory_diff = (end_memory_usage - start_memory_usage) / 1024 / 1024  # Convert to MB
 
         # Ensure the response has a content attribute and is not a streaming response
         response_content = None
@@ -87,23 +89,6 @@ class RequestsMiddleware:
         ip_address = self.get_client_ip(request)
         middlewares_used = settings.MIDDLEWARE
 
-        # Log or save the request details here
-        print('-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-')
-        print(f"HTTP Verb: {http_verb}",
-              f"URL Path: {url_path}, HTTP Status: {http_status}, Ajax: {is_ajax}",
-              f"IP Address: {ip_address}, Hostname: {hostname}")
-        print(f"User Info: {user_info}")
-        print(f"Timestamp: {timestamp}, View Function: {view_func},"
-              f"Middlewares Used: {middlewares_used}, "
-              f"Memory Usage Difference: {memory_diff} KB, "
-              f"Duration: {duration} ms")
-        print(f"Executed Queries: {executed_queries}")
-        print(f"Request Headers: {request_headers}")
-        print(f"Request GET Payload: {get_payload}")
-        print(f"Request POST Payload: {post_payload}")
-        print(f"Response size: {len(response_content)} bytes")
-        print(f"Session Data: {session_data}")
-
         # Create a SonarRequest object
         sonar_request = SonarRequest.objects.create(
             verb=http_verb,
@@ -116,26 +101,31 @@ class RequestsMiddleware:
             created_at=timestamp,
         )
 
-        # saves request's details
-        self.process_details(sonar_request.uuid, user_info, view_func, middlewares_used)
+        # saves request's uuid
+        self.sonar_request_uuid = sonar_request.uuid
 
-        # saves request's dump data
-        self.process_dumps(sonar_request.uuid)
+        # saves request's details
+        self.sonar_details(user_info, view_func, middlewares_used, memory_diff)
 
         # saves request's payload
-        self.process_payload(sonar_request.uuid, get_payload, post_payload)
+        self.sonar_payload(get_payload, post_payload)
 
         # stores the queries
-        self.process_queries(sonar_request.uuid, executed_queries)
+        self.sonar_queries(executed_queries)
 
         # saves request's headers
-        self.process_headers(sonar_request.uuid, request_headers)
+        self.sonar_headers(request_headers)
 
         # saves request's session
-        self.process_session(sonar_request.uuid, session_data)
+        self.sonar_sessions(session_data)
 
-        # Reset the thread-local storage
+        # saves request's dump data
+        self.sonar_dumps()
         utils.reset_sonar_dump()
+
+        # process the exception
+        self.sonar_exceptions()
+        utils.reset_sonar_exceptions()
 
         return response
 
@@ -155,70 +145,103 @@ class RequestsMiddleware:
         post_data = request.POST.copy()
         return post_data
 
-    def process_dumps(self, sonar_request_uuid):
+    def process_exception(self, request, exception):
+        """Process the exception and keep it in local storage."""
+        exc_traceback = traceback.extract_tb(exception.__traceback__)
+
+        # If there's at least one frame in the traceback
+        if exc_traceback:
+            # Get the last frame of the traceback
+            last_frame = exc_traceback[-1]
+
+            error_info = {
+                "file_name": last_frame.filename,
+                "line_number": last_frame.lineno,
+                "function_name": last_frame.name,
+                "exception_message": str(exception)
+            }
+        else:
+            # Fallback if traceback is empty for some reason
+            error_info = {
+                "exception_message": str(exception),
+                "detailed_traceback": "No traceback available",
+            }
+        utils.add_sonar_exception(error_info)
+
+    def sonar_exceptions(self):
+        sonar_exceptions = utils.get_sonar_exceptions()
+        for ex in sonar_exceptions:
+            SonarData.objects.create(
+                sonar_request_id=self.sonar_request_uuid,
+                category='exception',
+                data=ex
+            )
+
+    def sonar_dumps(self):
         """Process the dumps and save them to the database."""
         sonar_dumps = utils.get_sonar_dump()
         for dump in sonar_dumps:
             SonarData.objects.create(
-                sonar_request_id=sonar_request_uuid,
+                sonar_request_id=self.sonar_request_uuid,
                 category='dumps',
                 data=dump
             )
 
-    def process_details(self, sonar_request_uuid, user_info, view_func, middlewares_used):
+    def sonar_details(self, user_info, view_func, middlewares_used, memory_diff):
         """Process the details and save them to the database."""
         details = {
             'user_info': user_info,
             'view_func': view_func,
-            'middlewares_used': middlewares_used
+            'middlewares_used': middlewares_used,
+            'memory_used': memory_diff
         }
         SonarData.objects.create(
-            sonar_request_id=sonar_request_uuid,
+            sonar_request_id=self.sonar_request_uuid,
             category='details',
             data=details
         )
 
-    def process_payload(self, sonar_request_uuid, get_payload, post_payload):
+    def sonar_payload(self, get_payload, post_payload):
         """Process the payload and save them to the database."""
         payload = {
             'get_payload': get_payload,
             'post_payload': post_payload
         }
         SonarData.objects.create(
-            sonar_request_id=sonar_request_uuid,
+            sonar_request_id=self.sonar_request_uuid,
             category='payload',
             data=payload
         )
 
-    def process_queries(self, sonar_request_uuid, executed_queries):
+    def sonar_queries(self, executed_queries):
         """Process the queries and save them to the database."""
         queries = {
             'executed_queries': executed_queries
         }
         SonarData.objects.create(
-            sonar_request_id=sonar_request_uuid,
+            sonar_request_id=self.sonar_request_uuid,
             category='queries',
             data=queries
         )
 
-    def process_headers(self, sonar_request_uuid, request_headers):
+    def sonar_headers(self, request_headers):
         """Process the headers and save them to the database."""
         headers = {
             'request_headers': request_headers
         }
         SonarData.objects.create(
-            sonar_request_id=sonar_request_uuid,
+            sonar_request_id=self.sonar_request_uuid,
             category='headers',
             data=headers
         )
 
-    def process_session(self, sonar_request_uuid, session_data):
+    def sonar_sessions(self, session_data):
         """Process the session and save them to the database."""
         session = {
             'session_data': session_data
         }
         SonarData.objects.create(
-            sonar_request_id=sonar_request_uuid,
+            sonar_request_id=self.sonar_request_uuid,
             category='session',
             data=session
         )

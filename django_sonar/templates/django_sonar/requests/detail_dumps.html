@@ -1,0 +1,13 @@
+<div class="card border-light mt-3">
+
+    <div class="card-body">
+        {% for dump in dumps %}
+            <div class="row">
+                <div class="col border-bottom border-1 border-light pb-3">
+                    <code>{{ dump }}</code>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+</div>

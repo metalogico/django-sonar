@@ -13,6 +13,20 @@ def reset_sonar_dump():
     _thread_locals.sonar_dump = []
 
 
+def get_sonar_exceptions():
+    return getattr(_thread_locals, 'sonar_exceptions', [])
+
+
+def add_sonar_exception(exception):
+    sonar_exceptions = get_sonar_exceptions()
+    sonar_exceptions += [exception]
+    _thread_locals.sonar_exceptions = sonar_exceptions
+
+
+def reset_sonar_exceptions():
+    _thread_locals.sonar_exceptions = []
+
+
 def sonar(*args):
     sonar_dump = get_sonar_dump()
     for arg in args:

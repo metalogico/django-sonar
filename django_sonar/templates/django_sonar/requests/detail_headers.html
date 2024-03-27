@@ -1,0 +1,14 @@
+<div class="card border-light mt-3">
+
+    <div class="card-body">
+        {% for header, value in headers.request_headers.items %}
+            <div class="row">
+                <div class="col border-bottom border-1 border-light pb-3">
+                    <strong>{{ header }}:</strong>
+                    <code>{{ value }}</code>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+</div>

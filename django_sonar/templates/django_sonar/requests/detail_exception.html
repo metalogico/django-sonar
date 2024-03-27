@@ -1,0 +1,14 @@
+<div class="card border-light mt-3">
+
+    <div class="card-body">
+        {% for name, value in exception.items %}
+            <div class="row">
+                <div class="col border-bottom border-1 border-light pb-3">
+                    <strong>{{ name }}:</strong>
+                    <code>{{ value }}</code>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+</div>

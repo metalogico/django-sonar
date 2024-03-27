@@ -1,0 +1,18 @@
+<div class="card border-light mt-3">
+
+    <div class="card-body">
+
+        {% for ses_k, ses_v in session.session_data.items %}
+
+            <div class="row">
+                <div class="col border-bottom border-1 border-light pb-3">
+                    <strong>{{ ses_k }}:</strong>
+                    <code>{{ ses_v }}</code>
+                </div>
+            </div>
+
+        {% endfor %}
+
+    </div>
+
+</div>

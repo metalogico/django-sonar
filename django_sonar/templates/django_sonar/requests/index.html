@@ -15,27 +15,27 @@
             </tr>
             </thead>
             <tbody>
-            {% for request in requests %}
-                <tr class="{% if not request.is_read %}table-active{% endif %}">
+            {% for sonar_request in sonar_requests %}
+                <tr class="{% if not sonar_request.is_read %}table-active{% endif %}">
                     <td>
-                        <span class="badge bg-secondary">{{ request.verb }}</span>
+                        <span class="badge bg-secondary">{{ sonar_request.verb }}</span>
                     </td>
-                    <td>{{ request.path }}</td>
+                    <td>{{ sonar_request.path }}</td>
                     <td>
-                        {% if request.status == '200' %}
-                            <span class="badge bg-success">{{ request.status }}</span>
-                        {% elif request.status >= '400' and request.status < '500' %}
-                            <span class="badge bg-warning">{{ request.status }}</span>
+                        {% if sonar_request.status == '200' %}
+                            <span class="badge bg-success">{{ sonar_request.status }}</span>
+                        {% elif sonar_request.status >= '400' and sonar_request.status < '500' %}
+                            <span class="badge bg-warning">{{ sonar_request.status }}</span>
                         {% else %}
-                            <span class="badge bg-danger">{{ request.status }}</span>
+                            <span class="badge bg-danger">{{ sonar_request.status }}</span>
                         {% endif %}
                     </td>
-                    <td>{{ request.duration }}ms</td>
-                    <td>{{ request.created_at|timesince }}</td>
+                    <td>{{ sonar_request.duration }}ms</td>
+                    <td>{{ sonar_request.created_at|timesince }} ago</td>
                     <td class="text-end">
                         <a class="btn btn-sm btn-icon btn-secondary"
-                           href="{% url 'sonar_request_detail' request.uuid %}"
-                           hx-get="{% url 'sonar_request_detail' request.uuid %}"
+                           href="{% url 'sonar_request_detail' sonar_request.uuid %}"
+                           hx-get="{% url 'sonar_request_detail' sonar_request.uuid %}"
                            hx-swap="innerHTML"
                            hx-target="#main-content">
                             <i class="bi bi-arrow-right"></i>

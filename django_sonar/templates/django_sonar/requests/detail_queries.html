@@ -1,0 +1,20 @@
+<div class="card border-light mt-3">
+
+    <div class="card-body">
+
+        {% for query in queries.executed_queries %}
+
+            <div class="row">
+                <div class="col border-bottom border-1 border-light pb-3">
+                    <code>{{ query.sql }}</code>
+                    <div>
+                        <span class="text-muted text-small fw-lighter">{{ query.time|floatformat:2 }}ms</span>
+                    </div>
+                </div>
+            </div>
+
+        {% endfor %}
+
+    </div>
+
+</div>
