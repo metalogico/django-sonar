@@ -155,7 +155,7 @@
     document.querySelectorAll('.nav-detail .nav-link').forEach(function (link) {
         link.addEventListener('click', function () {
             // Remove active class from all menu items
-            document.querySelectorAll('.nav-link').forEach(function (item) {
+            document.querySelectorAll('.nav-detail .nav-link').forEach(function (item) {
                 item.classList.remove('active');
             });
             // Add active class to the clicked menu item

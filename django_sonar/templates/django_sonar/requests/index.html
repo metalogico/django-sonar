@@ -16,18 +16,18 @@
             </thead>
             <tbody>
             {% for sonar_request in sonar_requests %}
-                <tr class="{% if not sonar_request.is_read %}table-active{% endif %}">
+                <tr class="{% if not sonar_request.is_read %}bg-light{% endif %}">
                     <td>
                         <span class="badge bg-secondary">{{ sonar_request.verb }}</span>
                     </td>
                     <td>{{ sonar_request.path }}</td>
                     <td>
                         {% if sonar_request.status < '400' %}
-                            <span class="badge bg-light-success">{{ sonar_request.status }}</span>
+                            <span class="badge bg-success">{{ sonar_request.status }}</span>
                         {% elif sonar_request.status >= '400' and sonar_request.status < '500' %}
-                            <span class="badge bg-light-warning">{{ sonar_request.status }}</span>
+                            <span class="badge bg-warning">{{ sonar_request.status }}</span>
                         {% else %}
-                            <span class="badge bg-light-danger">{{ sonar_request.status }}</span>
+                            <span class="badge bg-danger">{{ sonar_request.status }}</span>
                         {% endif %}
                     </td>
                     <td>{{ sonar_request.duration }}ms</td>
