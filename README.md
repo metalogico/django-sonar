@@ -98,7 +98,9 @@ MIDDLEWARE = [
 ]
 ```
 
-## How to use
+## 😎 How to use
+
+### The Dashboard
 
 To access the dashboard you will point your browser to the /sonar/ url (but you can change it as described before). The interface is very simple and self explanatory.
 
@@ -132,6 +134,6 @@ sonar('something', self.request.GET, [1,2,3])
 DjangoSonar is open-sourced software licensed under the [MIT license](LICENSE.md).
 
 
-## Donations
+## 🍺 Donations
 If you really like this project and you want to help me please consider [buying me a beer 🍺](https://www.buymeacoffee.com/metalogico
 ) 
