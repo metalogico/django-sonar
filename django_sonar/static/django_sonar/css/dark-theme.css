@@ -1,0 +1,7 @@
+:root {
+    --primary-color: #3bd671; /* Bright green */
+    --primary-dark: #2a9d48; /* Darker green for hover */
+    --background-color: #121212; /* Dark background */
+    --text-color: #e0e0e0; /* Light grey for text */
+    --link-hover-color: #aad576; /* Lighter green for link hovers */
+}

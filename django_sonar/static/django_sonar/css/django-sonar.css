@@ -1,14 +1,16 @@
 :root {
-    --primary-color: #3bd671; /* Bright green */
-    --primary-dark: #2a9d48; /* Darker green for hover */
-    --background-color: #121212; /* Dark background */
-    --text-color: #e0e0e0; /* Light grey for text */
-    --link-hover-color: #aad576; /* Lighter green for link hovers */
+    --primary-color: #5DDD8B;
+    --primary-dark: #51c279;
+    --background-color: #f9f9f9;
+    --text-color: #071437;
+    --link-hover-color: #4db874;
+    --bs-card-border-radius: 0.625rem;
 }
 
 body {
     background-color: var(--background-color) !important;
     color: var(--text-color) !important;
+    font-family: Inter, Helvetica, "sans-serif";
 }
 
 a {
@@ -32,8 +34,6 @@ a:hover {
     background-color: var(--primary-color);
     color: white !important; /* Ensures text on buttons is readable */
     border: none; /* Assuming you want button borders removed */
-    padding: 10px 20px; /* Adjust padding to your liking */
-    border-radius: 5px; /* Gives buttons rounded corners */
 }
 
 .bg-success {
@@ -41,7 +41,8 @@ a:hover {
 }
 
 .btn-primary:hover {
-    background-color: var(--primary-dark);
+    color: #ffffff !important;
+    background-color: var(--primary-dark) !important;
 }
 
 .dark header {
@@ -50,7 +51,8 @@ a:hover {
 }
 
 .card {
-    background-color: #27293d;
+    background-color: #ffffff !important;
+    border-radius: var(--bs-card-border-radius);
 }
 
 .bg-primary {
@@ -70,4 +72,24 @@ a:hover {
 
 .fw-small {
     font-size: 10px !important;
+}
+
+.card-header {
+    padding-top: 20px !important;
+    padding-bottom: 20px !important;
+    vertical-align: middle !important;
+    background-color: #ffffff !important;
+}
+
+.card-header .card-title {
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+.table thead tr {
+    border-bottom: 1px dashed silver !important;
+}
+
+.table>:not(caption)>*>* {
+    border-bottom: 0 !important;
 }

@@ -1,4 +1,4 @@
-<div class="card border-light" hx-get="{% url 'sonar_dumps' %}" hx-trigger="every 5s" hx-swap="outerHTML">
+<div class="card shadow-sm  border-light" hx-get="{% url 'sonar_dumps' %}" hx-trigger="every 5s" hx-swap="outerHTML">
     <div class="card-header">
         <h5 class="card-title">Dumps</h5>
     </div>
@@ -18,7 +18,7 @@
                 <td><code>{{ dump.data|safe }}</code></td>
                 <td class="text-end">{{ dump.created_at|timesince }}</td>
                 <td class="w-50px text-end">
-                    <a class="btn btn-sm btn-icon btn-secondary">
+                    <a class="btn btn-sm btn-icon btn-primary">
                         <i class="bi bi-arrow-right"></i>
                     </a>
                 </td>

@@ -1,4 +1,4 @@
-<div class="card border-light" hx-get="{% url 'sonar_exceptions' %}" hx-trigger="every 5s" hx-swap="outerHTML">
+<div class="card shadow-sm  border-light" hx-get="{% url 'sonar_exceptions' %}" hx-trigger="every 5s" hx-swap="outerHTML">
     <div class="card-header">
         <h5 class="card-title">Queries</h5>
     </div>
@@ -21,7 +21,7 @@
                 <td><code>{{ exception.data.file_name }}:{{ exception.data.line_number }}</code></td>
                 <td>{{ exception.created_at|timesince }}</td>
                 <td>
-                    <a class="btn btn-sm btn-icon btn-secondary">
+                    <a class="btn btn-sm btn-icon btn-primary">
                         <i class="bi bi-arrow-right"></i>
                     </a>
                 </td>
