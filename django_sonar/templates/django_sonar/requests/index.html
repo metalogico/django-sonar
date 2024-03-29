@@ -1,11 +1,11 @@
-<div class="card border-light" hx-get="{% url 'sonar_requests' %}" hx-trigger="every 5s" hx-swap="outerHTML">
+<div class="card shadow-sm  border-light" hx-get="{% url 'sonar_requests' %}" hx-trigger="every 5s" hx-swap="outerHTML">
     <div class="card-header">
         <h5 class="card-title">Requests</h5>
     </div>
     <div class="card-body">
-        <table class="table table-dashed table-hover">
+        <table class="table table-dashed table-row-dashed table-hover">
             <thead>
-            <tr>
+            <tr class="">
                 <th scope="col">Verb</th>
                 <th scope="col">Path</th>
                 <th scope="col">Status</th>
@@ -33,7 +33,7 @@
                     <td>{{ sonar_request.duration }}ms</td>
                     <td>{{ sonar_request.created_at|timesince }} ago</td>
                     <td class="text-end">
-                        <a class="btn btn-sm btn-icon btn-secondary"
+                        <a class="btn btn-sm btn-icon btn-primary"
                            href="{% url 'sonar_request_detail' sonar_request.uuid %}"
                            hx-get="{% url 'sonar_request_detail' sonar_request.uuid %}"
                            hx-swap="innerHTML"

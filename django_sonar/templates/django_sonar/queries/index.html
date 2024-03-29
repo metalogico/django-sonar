@@ -1,4 +1,4 @@
-<div class="card border-light" hx-get="{% url 'sonar_queries' %}" hx-trigger="every 5s" hx-swap="outerHTML">
+<div class="card shadow-sm  border-light" hx-get="{% url 'sonar_queries' %}" hx-trigger="every 5s" hx-swap="outerHTML">
     <div class="card-header">
         <h5 class="card-title">Queries</h5>
     </div>
@@ -20,7 +20,7 @@
                 <td>{{ query.time }}ms</td>
                 <td>{{ query.created_at|timesince }}</td>
                 <td>
-                    <a class="btn btn-sm btn-icon btn-secondary">
+                    <a class="btn btn-sm btn-icon btn-primary">
                         <i class="bi bi-arrow-right"></i>
                     </a>
                 </td>
