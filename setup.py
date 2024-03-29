@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='django_sonar',
-    version='0.1.0',  # Start with a suitable version number for your project
+    version='0.1.1',
     author='Metalogico',
     author_email='michele.brandolin@gmail.com',  # Replace with your email
     description='The missing debug tool for Django',
@@ -19,9 +19,9 @@ setup(
         'Django>=4.0',
     ],
     classifiers=[
-        'Development Status :: 3 - Alpha',  # Change as appropriate
+        'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
-        'License :: OSI Approved :: MIT License',  # Ensure this matches your chosen license
+        'License :: OSI Approved :: MIT License',
         'Operating System :: OS Independent',
         'Framework :: Django',
         'Framework :: Django :: 4.0',
