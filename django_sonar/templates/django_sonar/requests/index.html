@@ -3,6 +3,11 @@
         <h5 class="card-title">Requests</h5>
     </div>
     <div class="card-body">
+
+        {% if not sonar_requests %}
+            <div class="text-light-grey">No requests found</div>
+        {% else %}
+
         <table class="table table-dashed table-row-dashed table-hover">
             <thead>
             <tr class="">
@@ -45,6 +50,8 @@
             {% endfor %}
             </tbody>
         </table>
+
+        {% endif %}
 
     </div>
 </div>
