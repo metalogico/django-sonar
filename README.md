@@ -109,6 +109,8 @@ You could use DjangoSonar in production too, since it gives you an historical ov
 
 🔔 If you forget to disable/clear DjangoSonar you could end up with several gigabytes of data collected. So please use it with caution when in production 🔔 
 
+**Only authenticated superusers can access sonar.** If you are trying to access the dashboard with a wrong type of user, you will see an error page, otherwise you should see the DjangoSonar login page.    
+
 ### sonar() - the dump helper
 
 You can dump values to DjangoSonar using the **sonar()** helper function:
