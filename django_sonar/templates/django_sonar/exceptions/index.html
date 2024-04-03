@@ -4,31 +4,36 @@
     </div>
     <div class="card-body">
 
-        <table class="table table-dashed table-hover">
-            <thead>
-            <tr>
-                <th scope="col">Type</th>
-                <th scope="col">File/Line</th>
-                <th scope="col">Function</th>
-                <th scope="col">Happened</th>
-                <th class="w-50px">&nbsp;</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for exception in exceptions %}
-            <tr>
-                <td>{{ exception.data.exception_message }}</td>
-                <td><code>{{ exception.data.file_name }}:{{ exception.data.line_number }}</code></td>
-                <td>{{ exception.created_at|timesince }}</td>
-                <td>
-                    <a class="btn btn-sm btn-icon btn-primary">
-                        <i class="bi bi-arrow-right"></i>
-                    </a>
-                </td>
-            </tr>
-            {% endfor %}
-            </tbody>
-        </table>
+
+        {% if not exceptions %}
+            <div class="text-light-grey">No exceptions found</div>
+        {% else %}
+            <table class="table table-dashed table-hover">
+                <thead>
+                <tr>
+                    <th scope="col">Type</th>
+                    <th scope="col">File/Line</th>
+                    <th scope="col">Function</th>
+                    <th scope="col">Happened</th>
+                    <th class="w-50px">&nbsp;</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for exception in exceptions %}
+                <tr>
+                    <td>{{ exception.data.exception_message }}</td>
+                    <td><code>{{ exception.data.file_name }}:{{ exception.data.line_number }}</code></td>
+                    <td>{{ exception.created_at|timesince }}</td>
+                    <td>
+                        <a class="btn btn-sm btn-icon btn-primary">
+                            <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
 
     </div>
 </div>

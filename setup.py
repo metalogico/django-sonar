@@ -12,6 +12,7 @@ setup(
     project_urls={
         "Bug Tracker": "https://github.com/metalogico/django-sonar/issues"
     },
+
     license='MIT',
     packages=find_packages(),
     include_package_data=True,

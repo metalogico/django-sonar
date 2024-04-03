@@ -1,11 +1,8 @@
-import json
-
-import uuid
-
 from django.contrib.auth.views import LoginView, LogoutView
 from django.urls import reverse_lazy
-from django.views.generic import TemplateView, DetailView, ListView, RedirectView
+from django.views.generic import TemplateView, DetailView, RedirectView
 
+from django_sonar.mixins import SuperuserRequiredMixin
 from django_sonar.models import SonarRequest, SonarData
 
 
@@ -19,11 +16,15 @@ class SonarLogoutView(LogoutView):
     next_page = reverse_lazy('sonar_login')
 
 
-class SonarHomeView(TemplateView):
+class SonarDeniedView(TemplateView):
+    template_name = 'django_sonar/auth/denied.html'
+
+
+class SonarHomeView(SuperuserRequiredMixin, TemplateView):
     template_name = 'django_sonar/home/index.html'
 
 
-class SonarRequestClearView(RedirectView):
+class SonarRequestClearView(SuperuserRequiredMixin, RedirectView):
     url = reverse_lazy('sonar_index')
 
     def get(self, request, *args, **kwargs):
@@ -35,7 +36,7 @@ class SonarRequestClearView(RedirectView):
 # SONAR LIST VIEWS
 #
 
-class SonarRequestListView(TemplateView):
+class SonarRequestListView(SuperuserRequiredMixin, TemplateView):
     template_name = 'django_sonar/requests/index.html'
 
     def get_context_data(self, **kwargs):
@@ -44,7 +45,7 @@ class SonarRequestListView(TemplateView):
         return context
 
 
-class SonarExceptionsListView(TemplateView):
+class SonarExceptionsListView(SuperuserRequiredMixin, TemplateView):
     template_name = 'django_sonar/exceptions/index.html'
 
     def get_context_data(self, **kwargs):
@@ -53,7 +54,7 @@ class SonarExceptionsListView(TemplateView):
         return context
 
 
-class SonarDumpsListView(TemplateView):
+class SonarDumpsListView(SuperuserRequiredMixin, TemplateView):
     template_name = 'django_sonar/dumps/index.html'
 
     def get_context_data(self, **kwargs):
@@ -62,11 +63,11 @@ class SonarDumpsListView(TemplateView):
         return context
 
 
-class SonarSignalsListView(TemplateView):
+class SonarSignalsListView(SuperuserRequiredMixin, TemplateView):
     template_name = 'django_sonar/signals/index.html'
 
 
-class SonarQueriesListView(TemplateView):
+class SonarQueriesListView(SuperuserRequiredMixin, TemplateView):
     template_name = 'django_sonar/queries/index.html'
 
     def get_context_data(self, **kwargs):
@@ -87,7 +88,7 @@ class SonarQueriesListView(TemplateView):
 #
 
 
-class SonarRequestDetailView(DetailView):
+class SonarRequestDetailView(SuperuserRequiredMixin, DetailView):
     context_object_name = 'sonar_request'
     template_name = 'django_sonar/requests/detail.html'
 
@@ -102,7 +103,7 @@ class SonarRequestDetailView(DetailView):
         return record
 
 
-class SonarDetailPayloadView(TemplateView):
+class SonarDetailPayloadView(SuperuserRequiredMixin, TemplateView):
     template_name = 'django_sonar/requests/detail_payload.html'
 
     def get_context_data(self, **kwargs):
@@ -112,7 +113,7 @@ class SonarDetailPayloadView(TemplateView):
         return context
 
 
-class SonarDetailHeadersView(TemplateView):
+class SonarDetailHeadersView(SuperuserRequiredMixin, TemplateView):
     template_name = 'django_sonar/requests/detail_headers.html'
 
     def get_context_data(self, **kwargs):
@@ -122,7 +123,7 @@ class SonarDetailHeadersView(TemplateView):
         return context
 
 
-class SonarDetailQueriesView(TemplateView):
+class SonarDetailQueriesView(SuperuserRequiredMixin, TemplateView):
     template_name = 'django_sonar/requests/detail_queries.html'
 
     def get_context_data(self, **kwargs):
@@ -132,7 +133,7 @@ class SonarDetailQueriesView(TemplateView):
         return context
 
 
-class SonarDetailSessionView(TemplateView):
+class SonarDetailSessionView(SuperuserRequiredMixin, TemplateView):
     template_name = 'django_sonar/requests/detail_session.html'
 
     def get_context_data(self, **kwargs):
@@ -142,7 +143,7 @@ class SonarDetailSessionView(TemplateView):
         return context
 
 
-class SonarDetailMiddlewaresView(TemplateView):
+class SonarDetailMiddlewaresView(SuperuserRequiredMixin, TemplateView):
     template_name = 'django_sonar/requests/detail_middlewares.html'
 
     def get_context_data(self, **kwargs):
@@ -152,7 +153,7 @@ class SonarDetailMiddlewaresView(TemplateView):
         return context
 
 
-class SonarDetailDumpsView(TemplateView):
+class SonarDetailDumpsView(SuperuserRequiredMixin, TemplateView):
     template_name = 'django_sonar/requests/detail_dumps.html'
 
     def get_context_data(self, **kwargs):
@@ -165,7 +166,7 @@ class SonarDetailDumpsView(TemplateView):
         return context
 
 
-class SonarDetailExceptionView(TemplateView):
+class SonarDetailExceptionView(SuperuserRequiredMixin, TemplateView):
     template_name = 'django_sonar/requests/detail_exception.html'
 
     def get_context_data(self, **kwargs):

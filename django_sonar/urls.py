@@ -3,13 +3,14 @@ from django.urls import path, include
 from django_sonar.views import SonarHomeView, SonarLoginView, SonarLogoutView, SonarRequestListView, \
     SonarExceptionsListView, SonarDumpsListView, SonarSignalsListView, SonarQueriesListView, SonarRequestDetailView, \
     SonarRequestClearView, SonarDetailPayloadView, SonarDetailHeadersView, SonarDetailSessionView, \
-    SonarDetailMiddlewaresView, SonarDetailQueriesView, SonarDetailDumpsView, SonarDetailExceptionView
+    SonarDetailMiddlewaresView, SonarDetailQueriesView, SonarDetailDumpsView, SonarDetailExceptionView, SonarDeniedView
 
 urlpatterns = [
     # general
     path('', SonarHomeView.as_view(), name='sonar_index'),
     path('login/', SonarLoginView.as_view(), name='sonar_login'),
     path('logout/', SonarLogoutView.as_view(), name='sonar_logout'),
+    path('denied/', SonarDeniedView.as_view(), name='sonar_denied'),
 
     # navigations
     path('requests/', SonarRequestListView.as_view(), name='sonar_requests'),

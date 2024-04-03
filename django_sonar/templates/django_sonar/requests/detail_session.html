@@ -1,6 +1,10 @@
 <div class="card shadow-sm  border-light mt-3">
 
     <div class="card-body">
+    
+        {% if not session.session_data %}
+            <div class="text-light-grey">No session data</div>
+        {% endif %}
 
         {% for ses_k, ses_v in session.session_data.items %}
 

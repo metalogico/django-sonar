@@ -2,6 +2,10 @@
 
     <div class="card-body">
 
+        {% if not queries.executed_queries %}
+            <div class="text-light-grey">No executed queries</div>
+        {% endif %}
+    
         {% for query in queries.executed_queries %}
 
             <div class="row">

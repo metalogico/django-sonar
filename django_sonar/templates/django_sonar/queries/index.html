@@ -4,30 +4,35 @@
     </div>
     <div class="card-body">
 
-        <table class="table table-dashed table-hover">
-            <thead>
-            <tr>
-                <th scope="col">Query</th>
-                <th scope="col">Duration</th>
-                <th scope="col">Happened</th>
-                <th class="w-50px">&nbsp;</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for query in queries %}
-            <tr>
-                <td><code>{{ query.sql|truncatechars:90 }}</code></td>
-                <td>{{ query.time }}ms</td>
-                <td>{{ query.created_at|timesince }}</td>
-                <td>
-                    <a class="btn btn-sm btn-icon btn-primary">
-                        <i class="bi bi-arrow-right"></i>
-                    </a>
-                </td>
-            </tr>
-            {% endfor %}
-            </tbody>
-        </table>
+
+        {% if not queries %}
+            <div class="text-light-grey">No queries found</div>
+        {% else %}
+            <table class="table table-dashed table-hover">
+                <thead>
+                <tr>
+                    <th scope="col">Query</th>
+                    <th scope="col">Duration</th>
+                    <th scope="col">Happened</th>
+                    <th class="w-50px">&nbsp;</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for query in queries %}
+                <tr>
+                    <td><code>{{ query.sql|truncatechars:90 }}</code></td>
+                    <td>{{ query.time }}ms</td>
+                    <td>{{ query.created_at|timesince }}</td>
+                    <td>
+                        <a class="btn btn-sm btn-icon btn-primary">
+                            <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
 
     </div>
 </div>
