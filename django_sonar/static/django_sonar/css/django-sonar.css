@@ -74,6 +74,10 @@ a:hover {
     font-size: 10px !important;
 }
 
+.text-light-grey {
+    color: #bec6cc !important;
+}
+
 .card-header {
     padding-top: 20px !important;
     padding-bottom: 20px !important;
