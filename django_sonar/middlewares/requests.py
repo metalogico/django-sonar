@@ -3,6 +3,7 @@ import time
 import traceback
 import tracemalloc
 from datetime import datetime
+from urllib.parse import urlencode
 
 from django.conf import settings
 from django.db import connection
@@ -71,6 +72,7 @@ class RequestsMiddleware:
         # Capture request details
         http_verb = request.method
         url_path = request.path
+        query_string = urlencode(get_payload)
         http_status = response.status_code
 
         # logged user
@@ -89,10 +91,16 @@ class RequestsMiddleware:
         ip_address = self.get_client_ip(request)
         middlewares_used = settings.MIDDLEWARE
 
+        # if there is a querystring add it to the full url
+        if query_string:
+            full_url = f"{url_path}?{query_string}"
+        else:
+            full_url = url_path
+
         # Create a SonarRequest object
         sonar_request = SonarRequest.objects.create(
             verb=http_verb,
-            path=url_path,
+            path=full_url,
             status=http_status,
             duration=duration,
             ip_address=ip_address,
