@@ -25,7 +25,7 @@
             </div>
 
             <script>
-                document.getElementById("query_index_{{ forloop.counter0 }}").innerHTML = format("{{ query.sql|safe }}", {language: 'sql'});
+                document.getElementById("query_index_{{ forloop.counter0 }}").innerHTML = format("{{ query.sql|safe|escapejs }}", {language: 'sql'});
             </script>
 
         {% endfor %}
