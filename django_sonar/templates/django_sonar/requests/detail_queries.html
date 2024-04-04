@@ -1,8 +1,3 @@
-<script>
-    // format the contents of sql_query using sql-formatter
-    var format = window.sqlFormatter.format;
-</script>
-
 <div class="card shadow-sm  border-light mt-3">
 
     <div class="card-body">
@@ -15,18 +10,14 @@
 
             <div class="row">
                 <div class="col border-bottom border-1 border-light pb-3">
-                    <code>
-                        <pre id="query_index_{{ forloop.counter0 }}">                        ...</pre>
+                    <code id="query_index_{{ forloop.counter0 }}">
+                        {{ query.sql|safe }}
                     </code>
                     <div>
                         <span class="text-muted text-small fw-lighter">{{ query.time|floatformat:2 }}ms</span>
                     </div>
                 </div>
             </div>
-
-            <script>
-                document.getElementById("query_index_{{ forloop.counter0 }}").innerHTML = format("{{ query.sql|safe|escapejs }}", {language: 'sql'});
-            </script>
 
         {% endfor %}
 

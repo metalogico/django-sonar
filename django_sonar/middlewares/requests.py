@@ -9,7 +9,7 @@ from django.conf import settings
 from django.db import connection
 from django.urls import resolve
 from django.utils.timezone import make_aware
-
+from django.contrib.auth import get_user_model
 from django_sonar import utils
 from django_sonar.models import SonarRequest, SonarData
 
@@ -80,8 +80,8 @@ class RequestsMiddleware:
         if request.user.is_authenticated:
             user_info = {
                 'user_id': request.user.id,
-                'username': request.user.username,
-                'email': request.user.email
+                'username': request.user.get_username(),
+                'email': getattr(request.user, 'email', 'No email provided'),
             }
 
         # Additional details

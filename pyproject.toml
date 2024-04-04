@@ -3,8 +3,9 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
+dynamic = ["license"]
 name = "django_sonar"
-version = "0.1.4"
+version = "0.1.6"
 authors = [
     { name = "Metalogico", email = "michele.brandolin@gmail.com" },
 ]

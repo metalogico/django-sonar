@@ -3,14 +3,8 @@
         <h5 class="card-title">Query detail</h5>
     </div>
     <div class="card-body">
-        <code>
-            <pre id="formatted_sql_query"></pre>
-        </code>
+      <code id="formatted_sql_query">
+          {{ sonar_query.sql|safe }}
+      </code>
     </div>
 </div>
-
-<script>
-    // format the contents of sql_query using sql-formatter
-    var format = window.sqlFormatter.format;
-    document.getElementById("formatted_sql_query").innerHTML = format("{{ sonar_query.sql|safe|escapejs }}", {language: 'sql'});
-</script>
