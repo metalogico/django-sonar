@@ -14,8 +14,9 @@ setup(
     },
 
     license='MIT',
-    packages=find_packages(),
+    packages=['django_sonar'],
     include_package_data=True,
+    package_data={'django_sonar': ['templates/*']},
     install_requires=[
         'Django>=4.0',
     ],
