@@ -13,7 +13,6 @@ from django.contrib.auth import get_user_model
 from django_sonar import utils
 from django_sonar.models import SonarRequest, SonarData
 
-
 class RequestsMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
@@ -77,12 +76,16 @@ class RequestsMiddleware:
 
         # logged user
         user_info = None
+        # get user info if user is authenticated
+        User = get_user_model()
         if request.user.is_authenticated:
+            # use get_username() instead of username to support custom user models
+            # use get_email_field_name() instead of email to support custom user models
             user_info = {
-                'user_id': request.user.id,
-                'username': request.user.get_username(),
-                'email': getattr(request.user, 'email', 'No email provided'),
-            }
+                "user_id": request.user.id,
+                "username": request.user.get_username(),
+                "email": getattr(request.user, User.get_email_field_name(), 'No email provided'),
+                }
 
         # Additional details
         is_ajax = self.is_ajax(request)
