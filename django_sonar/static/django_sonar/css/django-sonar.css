@@ -97,3 +97,7 @@ a:hover {
 .table>:not(caption)>*>* {
     border-bottom: 0 !important;
 }
+
+pre {
+    font-size: 1rem;
+}

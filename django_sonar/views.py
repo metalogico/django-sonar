@@ -77,8 +77,10 @@ class SonarQueriesListView(SuperuserRequiredMixin, TemplateView):
         context['queries'] = []
         for query in queries:
             if 'executed_queries' in query.data:
-                for executed_query in query.data['executed_queries']:
+                for index, executed_query in enumerate(query.data['executed_queries'], start=0):
                     executed_query['created_at'] = query.created_at
+                    executed_query['sonar_request_id'] = query.sonar_request_id
+                    executed_query['index'] = index
                     context['queries'].append(executed_query)
         return context
 
@@ -101,6 +103,19 @@ class SonarRequestDetailView(SuperuserRequiredMixin, DetailView):
         details = SonarData.objects.filter(sonar_request_id=record.uuid, category='details').first()
         record.details = details.data if details else {}
         return record
+
+
+class SonarQueriesDetailView(SuperuserRequiredMixin, DetailView):
+    context_object_name = 'sonar_query'
+    template_name = 'django_sonar/queries/detail.html'
+
+    def get_object(self):
+        queries = SonarData.objects.filter(category='queries',
+                                           sonar_request_id=self.kwargs.get('uuid')).first()
+        executed_queries = queries.data['executed_queries'] if queries else []
+        single_query = executed_queries[self.kwargs.get('index')] or {}
+        single_query['sonar_request_id'] = self.kwargs.get('uuid')
+        return single_query
 
 
 class SonarDetailPayloadView(SuperuserRequiredMixin, TemplateView):

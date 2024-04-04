@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='django_sonar',
-    version='0.1.3',
+    version='0.1.4',
     author='Metalogico',
     author_email='michele.brandolin@gmail.com',
     description='The missing debug tool for Django',

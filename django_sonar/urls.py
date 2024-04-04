@@ -3,7 +3,8 @@ from django.urls import path, include
 from django_sonar.views import SonarHomeView, SonarLoginView, SonarLogoutView, SonarRequestListView, \
     SonarExceptionsListView, SonarDumpsListView, SonarSignalsListView, SonarQueriesListView, SonarRequestDetailView, \
     SonarRequestClearView, SonarDetailPayloadView, SonarDetailHeadersView, SonarDetailSessionView, \
-    SonarDetailMiddlewaresView, SonarDetailQueriesView, SonarDetailDumpsView, SonarDetailExceptionView, SonarDeniedView
+    SonarDetailMiddlewaresView, SonarDetailQueriesView, SonarDetailDumpsView, SonarDetailExceptionView, SonarDeniedView, \
+    SonarQueriesDetailView
 
 urlpatterns = [
     # general
@@ -19,6 +20,9 @@ urlpatterns = [
     path('queries/', SonarQueriesListView.as_view(), name='sonar_queries'),
     path('dumps/', SonarDumpsListView.as_view(), name='sonar_dumps'),
     path('signals/', SonarSignalsListView.as_view(), name='sonar_signals'),
+
+    # queries detail
+    path('queries/<uuid:uuid>/q/<int:index>/', SonarQueriesDetailView.as_view(), name='sonar_queries_detail'),
 
     # request details
     path('requests/<uuid:uuid>/payload/', SonarDetailPayloadView.as_view(), name='sonar_detail_payload'),
