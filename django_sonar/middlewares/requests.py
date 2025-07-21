@@ -17,14 +17,14 @@ class RequestsMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
         self.sonar_request_uuid = None
-        tracemalloc.start()  # Start tracing memory allocation
+        tracemalloc.start()  # Start tracing memory allocation    
 
     def __call__(self, request):
         # Get the list of excluded paths from settings
         excluded_paths = settings.DJANGO_SONAR.get('excludes', [])
 
         # Check if the request path is excluded
-        if any(request.path.startswith(path) for path in excluded_paths):
+        if self._should_exclude(request.path):
             return self.get_response(request)
 
         # Reset query log at the beginning of the request
@@ -256,3 +256,41 @@ class RequestsMiddleware:
             category='session',
             data=session
         )
+        
+    def _compile_excludes(self):
+        """
+        Compile the excludes list provided in the settings.
+
+        :return: a list of tuples (pattern_type, pattern) where pattern_type is one of
+            'regex' or 'literal' and pattern is a compiled regex pattern or a string
+        """
+        excluded_paths = settings.DJANGO_SONAR.get('excludes', [])
+        compiled = []
+        
+        for pattern in excluded_paths:
+            if isinstance(pattern, str) and pattern.startswith('r'):
+                try:
+                    regex_pattern = pattern[1:]
+                    compiled.append(('regex', re.compile(regex_pattern)))
+                except re.error:
+                    compiled.append(('literal', pattern))
+            else:
+                compiled.append(('literal', pattern))
+        
+        return compiled
+
+    def _should_exclude(self, path):
+        """
+        Check if the path should be excluded based on the excludes list provided in the settings.
+
+        :param path: the path to check
+        :return: whether the path should be excluded
+        """
+        for pattern_type, pattern in self.compiled_excludes:
+            if pattern_type == 'regex':
+                if pattern.match(path):
+                    return True
+            else:  # literal
+                if path.startswith(pattern):
+                    return True
+        return False
