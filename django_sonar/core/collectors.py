@@ -71,7 +71,8 @@ class DataCollector:
         :param executed_queries: List of query dictionaries from Django
         """
         queries = {
-            'executed_queries': executed_queries
+            'executed_queries': executed_queries,
+            'query_count': len(executed_queries)
         }
         SonarData.objects.create(
             sonar_request_id=self.sonar_request_uuid,

@@ -74,6 +74,7 @@ class RequestsMiddleware:
 
         # log all queries
         executed_queries = connection.queries
+        query_count = len(executed_queries)
 
         # Capture request details
         http_verb = request.method
@@ -113,6 +114,7 @@ class RequestsMiddleware:
             path=full_url,
             status=http_status,
             duration=duration,
+            query_count=query_count,
             ip_address=ip_address,
             hostname=hostname,
             is_ajax=is_ajax,

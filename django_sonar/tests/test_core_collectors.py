@@ -80,6 +80,7 @@ class DataCollectorTestCase(BaseMiddlewareTestCase):
             category='queries'
         )
         self.assertEqual(data.data['executed_queries'], queries)
+        self.assertEqual(data.data['query_count'], 2)
 
     def test_save_headers(self):
         """Test save_headers creates correct SonarData entry"""

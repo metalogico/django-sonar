@@ -1,5 +1,7 @@
 <div class="card shadow-sm  border-light mt-3">
-
+    <div class="card-header">
+        <h6 class="card-title">Total Queries: <span class="badge bg-info">{{ queries.query_count|default:0 }}</span></h6>
+    </div>
     <div class="card-body">
 
         {% if not queries.executed_queries %}

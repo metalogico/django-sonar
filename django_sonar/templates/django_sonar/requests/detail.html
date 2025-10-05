@@ -58,6 +58,12 @@
             </div>
         </div>
         <div class="row">
+            <div class="col-3 text-muted">Query Count</div>
+            <div class="col-9">
+                <span class="badge bg-info">{{ sonar_request.query_count }}</span>
+            </div>
+        </div>
+        <div class="row">
             <div class="col-3 text-muted">IP Address</div>
             <div class="col-9">
                 {{ sonar_request.ip_address }}

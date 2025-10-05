@@ -9,6 +9,7 @@ class SonarRequest(models.Model):
     path = models.CharField(max_length=255, verbose_name=_('Path'))
     status = models.CharField(max_length=255, verbose_name=_('Status'))
     duration = models.IntegerField(verbose_name=_('Duration'))
+    query_count = models.IntegerField(verbose_name=_('Query Count'), default=0)
     ip_address = models.GenericIPAddressField(verbose_name=_('IP Address'), blank=True, null=True)
     hostname = models.CharField(max_length=255, verbose_name=_('Hostname'), blank=True, null=True)
     is_ajax = models.BooleanField(verbose_name=_('Ajax'), default=False)

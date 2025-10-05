@@ -15,6 +15,7 @@
                 <th scope="col">Path</th>
                 <th scope="col">Status</th>
                 <th scope="col">Duration</th>
+                <th scope="col">Queries</th>
                 <th scope="col">Happened</th>
                 <th class="w-50px">&nbsp;</th>
             </tr>
@@ -36,6 +37,9 @@
                         {% endif %}
                     </td>
                     <td>{{ sonar_request.duration }}ms</td>
+                    <td>
+                        <span class="badge bg-info">{{ sonar_request.query_count }}</span>
+                    </td>
                     <td>{{ sonar_request.created_at|timesince }} ago</td>
                     <td class="text-end">
                         <a class="btn btn-sm btn-icon btn-primary"

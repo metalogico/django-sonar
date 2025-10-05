@@ -317,3 +317,30 @@ class MiddlewareDataCaptureTestCase(BaseMiddlewareTestCase):
         self.assertEqual(session['user_id'], 123)
         self.assertEqual(session['api_token'], '***FILTERED***')
         self.assertEqual(session['theme'], 'dark')
+
+    @override_settings(DJANGO_SONAR={'excludes': []})
+    def test_middleware_captures_query_count(self):
+        """Test middleware captures query count in SonarRequest"""
+        request = self.factory.get('/test/')
+        request = self._add_session_to_request(request)
+        request.user = self.user
+        
+        middleware = RequestsMiddleware(self.get_response)
+        response = middleware(request)
+        
+        # Verify query_count field is set
+        sonar_request = SonarRequest.objects.first()
+        self.assertIsNotNone(sonar_request.query_count)
+        self.assertIsInstance(sonar_request.query_count, int)
+        self.assertGreaterEqual(sonar_request.query_count, 0)
+        
+        # Verify query_count also in queries data
+        queries_data = SonarData.objects.get(
+            sonar_request=sonar_request,
+            category='queries'
+        )
+        self.assertIn('query_count', queries_data.data)
+        self.assertEqual(
+            queries_data.data['query_count'],
+            len(queries_data.data['executed_queries'])
+        )
