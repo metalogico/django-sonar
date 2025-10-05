@@ -34,6 +34,7 @@ If you use this project, please consider giving it a ⭐.
   - Session vars
   - Headers
   - ...
+- 🔒 Automatic sensitive data filtering (passwords, tokens, API keys, etc.)
 - Historical data (clearable)
 - Simple and reactive UI
 
@@ -82,6 +83,35 @@ DJANGO_SONAR = {
 
 In this example I'm excluding all the http requests to static files, uploads, the sonar dashboard itself, the django admin panels and the browser reload library.
 Update this setting accordingly, YMMW.
+
+### 🔒 Sensitive Data Protection
+
+DjangoSonar automatically filters sensitive data from request payloads, headers, and session data before storing them in the database. By default, it masks common sensitive fields like:
+- `password`, `passwd`, `pwd`, `pass`
+- `token`, `api_key`, `secret`, `authorization`
+- `credit_card`, `cvv`, `ssn`, `pin`
+- And more...
+
+These fields are replaced with `***FILTERED***` in the stored data.
+
+**Custom Sensitive Fields**: You can add your own sensitive field patterns by adding them to the configuration:
+
+```python
+DJANGO_SONAR = {
+    'excludes': [
+        STATIC_URL,
+        MEDIA_URL,
+        '/sonar/',
+    ],
+    'sensitive_fields': [
+        'custom_secret',
+        'internal_api_key',
+        'private_data',
+    ],
+}
+```
+
+The filtering is case-insensitive and works with partial matches (e.g., `user_password`, `my_api_key` will also be filtered).
 
 5. Now you should be able to execute the migrations to create the two tables that DjangoSonar will use to collect the data.
 
