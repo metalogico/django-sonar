@@ -4,7 +4,7 @@ from django_sonar.views import SonarHomeView, SonarLoginView, SonarLogoutView, S
     SonarExceptionsListView, SonarDumpsListView, SonarSignalsListView, SonarQueriesListView, SonarRequestDetailView, \
     SonarRequestClearView, SonarDetailPayloadView, SonarDetailHeadersView, SonarDetailSessionView, \
     SonarDetailMiddlewaresView, SonarDetailQueriesView, SonarDetailDumpsView, SonarDetailExceptionView, SonarDeniedView, \
-    SonarQueriesDetailView
+    SonarQueriesDetailView, SonarRequestTableView
 
 urlpatterns = [
     # general
@@ -15,6 +15,7 @@ urlpatterns = [
 
     # navigations
     path('requests/', SonarRequestListView.as_view(), name='sonar_requests'),
+    path('requests/table/', SonarRequestTableView.as_view(), name='sonar_requests_table'),
     path('requests/<uuid:uuid>/', SonarRequestDetailView.as_view(), name='sonar_request_detail'),
     path('exceptions/', SonarExceptionsListView.as_view(), name='sonar_exceptions'),
     path('queries/', SonarQueriesListView.as_view(), name='sonar_queries'),

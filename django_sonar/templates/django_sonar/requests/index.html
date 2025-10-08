@@ -1,61 +1,45 @@
-<div class="card shadow-sm  border-light" hx-get="{% url 'sonar_requests' %}" hx-trigger="every 5s" hx-swap="outerHTML">
+<div class="card shadow-sm  border-light">
     <div class="card-header">
         <h5 class="card-title">Requests</h5>
     </div>
     <div class="card-body">
 
-        {% if not sonar_requests %}
-            <div class="text-light-grey">No requests found</div>
-        {% else %}
+        <!-- Filter Form -->
+        <form method="get" action="{% url 'sonar_requests' %}" class="mb-4" hx-get="{% url 'sonar_requests' %}"
+            hx-target="#main-content" hx-swap="innerHTML">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <label for="verb" class="form-label">Method</label>
+                    <select name="verb" id="verb" class="form-select form-select-sm">
+                        <option value="">All</option>
+                        <option value="GET" {% if filters.verb == 'GET' %}selected{% endif %}>GET</option>
+                        <option value="POST" {% if filters.verb == 'POST' %}selected{% endif %}>POST</option>
+                        <option value="PUT" {% if filters.verb == 'PUT' %}selected{% endif %}>PUT</option>
+                        <option value="PATCH" {% if filters.verb == 'PATCH' %}selected{% endif %}>PATCH</option>
+                        <option value="DELETE" {% if filters.verb == 'DELETE' %}selected{% endif %}>DELETE</option>
+                        <option value="HEAD" {% if filters.verb == 'HEAD' %}selected{% endif %}>HEAD</option>
+                        <option value="OPTIONS" {% if filters.verb == 'OPTIONS' %}selected{% endif %}>OPTIONS</option>
+                    </select>
+                </div>
+                <div class="col-md-5">
+                    <label for="path" class="form-label">Path</label>
+                    <input type="text" name="path" id="path" class="form-control form-control-sm"
+                        placeholder="e.g., /api/" value="{{ filters.path }}">
+                </div>
+                <div class="col-md-2">
+                    <label for="status" class="form-label">Status</label>
+                    <input type="text" name="status" id="status" class="form-control form-control-sm"
+                        placeholder="e.g., 200" value="{{ filters.status }}">
+                </div>
+                <div class="col-md-2 d-flex align-items-end gap-2">
+                    <button type="submit" class="btn btn-sm btn-primary">Filter</button>
+                    <a href="{% url 'sonar_requests' %}" class="btn btn-sm btn-primary"
+                        hx-get="{% url 'sonar_requests' %}" hx-target="#main-content" hx-swap="innerHTML">Clear</a>
+                </div>
+            </div>
+        </form>
 
-        <table class="table table-dashed table-row-dashed table-hover">
-            <thead>
-            <tr class="">
-                <th scope="col">Verb</th>
-                <th scope="col">Path</th>
-                <th scope="col">Status</th>
-                <th scope="col">Duration</th>
-                <th scope="col">Queries</th>
-                <th scope="col">Happened</th>
-                <th class="w-50px">&nbsp;</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for sonar_request in sonar_requests %}
-                <tr class="{% if not sonar_request.is_read %}bg-light{% endif %}">
-                    <td>
-                        <span class="badge bg-secondary">{{ sonar_request.verb }}</span>
-                    </td>
-                    <td>{{ sonar_request.path }}</td>
-                    <td>
-                        {% if sonar_request.status < '400' %}
-                            <span class="badge bg-success">{{ sonar_request.status }}</span>
-                        {% elif sonar_request.status >= '400' and sonar_request.status < '500' %}
-                            <span class="badge bg-warning">{{ sonar_request.status }}</span>
-                        {% else %}
-                            <span class="badge bg-danger">{{ sonar_request.status }}</span>
-                        {% endif %}
-                    </td>
-                    <td>{{ sonar_request.duration }}ms</td>
-                    <td>
-                        <span class="badge bg-info">{{ sonar_request.query_count }}</span>
-                    </td>
-                    <td>{{ sonar_request.created_at|timesince }} ago</td>
-                    <td class="text-end">
-                        <a class="btn btn-sm btn-icon btn-primary"
-                           href="{% url 'sonar_request_detail' sonar_request.uuid %}"
-                           hx-get="{% url 'sonar_request_detail' sonar_request.uuid %}"
-                           hx-swap="innerHTML"
-                           hx-target="#main-content">
-                            <i class="bi bi-arrow-right"></i>
-                        </a>
-                    </td>
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-
-        {% endif %}
+        {% include 'django_sonar/requests/table.html' %}
 
     </div>
 </div>

@@ -1,10 +1,11 @@
 {% load static %}
 <!doctype html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Django Sonar</title>
     <link rel="shortcut icon" href="{% static 'django_sonar/media/logos/favicon.png' %}">
@@ -14,119 +15,115 @@
     <script src="{% static 'django_sonar/js/bootstrap.bundle.min.js' %}"></script>
     <script src="{% static 'django_sonar/js/htmx.min.js' %}"></script>
 </head>
+
 <body class="">
 
-<div class="container">
-    <header class="d-flex flex-wrap justify-content-center py-3 px-3 mb-3 border-bottom">
-        <a href="{% url 'sonar_index' %}"
-           class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-decoration-none">
-            <span class="fs-4 text-dark">
-                <i class="bi bi-broadcast"></i>
-                Django Sonar
-            </span>
-        </a>
-        <ul class="nav nav-pills gap-1">
-            <!--
+    <div class="container">
+        <header class="d-flex flex-wrap justify-content-center py-3 px-3 mb-3 border-bottom">
+            <a href="{% url 'sonar_index' %}"
+                class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-decoration-none">
+                <span class="fs-4 text-dark">
+                    <i class="bi bi-broadcast"></i>
+                    Django Sonar
+                </span>
+            </a>
+            <ul class="nav nav-pills gap-1">
+                <!--
             <a href="#" class="btn btn-light" data-bs-toggle="tooltip" data-bs-placement="bottom"
                title="Pause / Resume">
                 <i class="bi bi-pause-fill"></i>
             </a>
             -->
-            <a href="{% url 'sonar_request_clear' %}" class="btn btn-primary" data-bs-toggle="tooltip"
-               data-bs-placement="bottom" title="Clear all">
-                <i class="bi bi-trash-fill"></i>
-            </a>
-        </ul>
-    </header>
-    <main>
-        <div class="row">
-            <div class="col-lg-2 col-sm-12 mb-3">
-                <div class="card shadow-sm  border-0">
-                    <div class="card-body p-0 m-0">
+                <a href="{% url 'sonar_request_clear' %}" class="btn btn-primary" data-bs-toggle="tooltip"
+                    data-bs-placement="bottom" title="Clear all">
+                    <i class="bi bi-trash-fill"></i>
+                </a>
+            </ul>
+        </header>
+        <main>
+            <div class="row">
+                <div class="col-lg-2 col-sm-12 mb-3">
+                    <div class="card shadow-sm  border-0">
+                        <div class="card-body p-0 m-0">
 
-                        <ul class="nav nav-pills nav-fill flex-column">
-                            <li class="nav-item text-start">
-                                <a class="nav-link active" href="{% url 'sonar_requests' %}"
-                                   hx-trigger="click"
-                                   hx-swap="innerHTML"
-                                   hx-get="{% url 'sonar_requests' %}" hx-target="#main-content">
-                                    <i class="bi bi-arrow-left-right me-1"></i>
-                                    Requests
-                                </a>
-                            </li>
-                            <li class="nav-item text-start">
-                                <a class="nav-link" href="{% url 'sonar_exceptions' %}"
-                                   hx-trigger="click"
-                                   hx-swap="innerHTML"
-                                   hx-get="{% url 'sonar_exceptions' %}" hx-target="#main-content">
-                                    <i class="bi bi-exclamation-triangle me-1"></i>
-                                    Exceptions
-                                </a>
-                            </li>
-                            <li class="nav-item text-start">
-                                <a class="nav-link" href="{% url 'sonar_dumps' %}" hx-get="{% url 'sonar_dumps' %}"
-                                   hx-swap="innerHTML"
-                                   hx-trigger="click"
-                                   hx-target="#main-content">
-                                    <i class="bi bi-terminal-fill me-1"></i>
-                                    Dumps
-                                </a>
-                            </li>
-                            <li class="nav-item text-start">
-                                <a class="nav-link" href="{% url 'sonar_queries' %}" hx-get="{% url 'sonar_queries' %}"
-                                   hx-trigger="click"
-                                   hx-swap="innerHTML"
-                                   hx-target="#main-content">
-                                    <i class="bi bi-database me-1"></i>
-                                    Queries
-                                </a>
-                            </li>
-                            <li class="nav-item text-start">
-                                <a class="nav-link" href="{% url 'sonar_signals' %}" hx-get="{% url 'sonar_signals' %}"
-                                   hx-trigger="click"
-                                   hx-swap="innerHTML"
-                                   hx-target="#main-content">
-                                    <i class="bi bi-diagram-3 me-1"></i>
-                                    Signals
-                                </a>
-                            </li>
-                        </ul>
+                            <ul class="nav nav-pills nav-fill flex-column">
+                                <li class="nav-item text-start">
+                                    <a class="nav-link active" href="{% url 'sonar_requests' %}" hx-trigger="click"
+                                        hx-swap="innerHTML" hx-get="{% url 'sonar_requests' %}"
+                                        hx-target="#main-content">
+                                        <i class="bi bi-arrow-left-right me-1"></i>
+                                        Requests
+                                    </a>
+                                </li>
+                                <li class="nav-item text-start">
+                                    <a class="nav-link" href="{% url 'sonar_exceptions' %}" hx-trigger="click"
+                                        hx-swap="innerHTML" hx-get="{% url 'sonar_exceptions' %}"
+                                        hx-target="#main-content">
+                                        <i class="bi bi-exclamation-triangle me-1"></i>
+                                        Exceptions
+                                    </a>
+                                </li>
+                                <li class="nav-item text-start">
+                                    <a class="nav-link" href="{% url 'sonar_dumps' %}" hx-get="{% url 'sonar_dumps' %}"
+                                        hx-swap="innerHTML" hx-trigger="click" hx-target="#main-content">
+                                        <i class="bi bi-terminal-fill me-1"></i>
+                                        Dumps
+                                    </a>
+                                </li>
+                                <li class="nav-item text-start">
+                                    <a class="nav-link" href="{% url 'sonar_queries' %}"
+                                        hx-get="{% url 'sonar_queries' %}" hx-trigger="click" hx-swap="innerHTML"
+                                        hx-target="#main-content">
+                                        <i class="bi bi-database me-1"></i>
+                                        Queries
+                                    </a>
+                                </li>
+                                <li class="nav-item text-start">
+                                    <a class="nav-link" href="{% url 'sonar_signals' %}"
+                                        hx-get="{% url 'sonar_signals' %}" hx-trigger="click" hx-swap="innerHTML"
+                                        hx-target="#main-content">
+                                        <i class="bi bi-diagram-3 me-1"></i>
+                                        Signals
+                                    </a>
+                                </li>
+                            </ul>
 
+                        </div>
                     </div>
                 </div>
+                <div class="col-lg-10 col-sm-12" id="main-content">
+                    <script>
+                        htmx.ajax('GET', "{% url 'sonar_requests' %}", { target: '#main-content' });
+                    </script>
+                </div>
             </div>
-            <div class="col-lg-10 col-sm-12" id="main-content">
-                <script>
-                    htmx.ajax('GET', '{% url 'sonar_requests' %}', {target: '#main-content'});
-                </script>
+            <div class="text-center fw-lighter mt-2">
+                <span class="text-muted fw-small">Crafted with ❤️+🍺️ in Friuli</span>
             </div>
-        </div>
-        <div class="text-center fw-lighter mt-2">
-            <span class="text-muted fw-small">Crafted with ❤️+🍺️ in Friuli</span>
-        </div>
-    </main>
-</div>
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-            return new bootstrap.Tooltip(tooltipTriggerEl)
-        })
+        </main>
+    </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            })
 
-        document.querySelectorAll('.nav-link').forEach(function (link) {
-            link.addEventListener('click', function () {
-                // Remove active class from all menu items
-                document.querySelectorAll('.nav-link').forEach(function (item) {
-                    item.classList.remove('active');
+            document.querySelectorAll('.nav-link').forEach(function (link) {
+                link.addEventListener('click', function () {
+                    // Remove active class from all menu items
+                    document.querySelectorAll('.nav-link').forEach(function (item) {
+                        item.classList.remove('active');
+                    });
+                    // Add active class to the clicked menu item
+                    this.classList.add('active');
                 });
-                // Add active class to the clicked menu item
-                this.classList.add('active');
             });
-        });
 
 
-    })
-</script>
-<script src="{% static 'django_sonar/js/sql-formatter.min.js' %}"></script>
+        })
+    </script>
+    <script src="{% static 'django_sonar/js/sql-formatter.min.js' %}"></script>
 </body>
+
 </html>

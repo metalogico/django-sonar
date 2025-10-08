@@ -113,6 +113,49 @@ DJANGO_SONAR = {
 
 The filtering is case-insensitive and works with partial matches (e.g., `user_password`, `my_api_key` will also be filtered).
 
+### 💾 Separate Database Configuration (Recommended)
+
+For better performance, it's recommended to store Django Sonar data in a separate database. This prevents monitoring overhead from impacting your main application database.
+
+**Step 1**: Configure a separate database in your `settings.py`:
+
+```python
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'your_main_db',
+        # ... other settings
+    },
+    'sonar_db': {
+        'ENGINE': 'django.db.backends.sqlite3',  # or postgresql, mysql, etc.
+        'NAME': BASE_DIR / 'sonar.db',
+    }
+}
+```
+
+**Step 2**: Add the database router to your `settings.py`:
+
+```python
+DATABASE_ROUTERS = ['django_sonar.db_router.SonarDatabaseRouter']
+```
+
+**Step 3**: Run migrations:
+
+```bash
+# Migrate your main database (Django Sonar tables will be skipped)
+python manage.py migrate
+
+# Migrate the sonar database (only Django Sonar tables)
+python manage.py migrate --database=sonar_db
+```
+
+Now all Django Sonar data will be stored in the separate database!
+
+**Note**: The database router ensures that:
+- Django Sonar tables **only** migrate to `sonar_db`
+- Your main application tables **never** migrate to `sonar_db`
+- Everything stays cleanly separated
+
 5. Now you should be able to execute the migrations to create the two tables that DjangoSonar will use to collect the data.
 
 ```bash

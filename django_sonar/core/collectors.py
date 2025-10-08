@@ -13,6 +13,7 @@ Handles saving request data to SonarData model with different categories:
 
 from django_sonar.models import SonarData
 from django_sonar import utils
+from django_sonar.utils import make_json_serializable
 
 
 class DataCollector:
@@ -44,7 +45,7 @@ class DataCollector:
         SonarData.objects.create(
             sonar_request_id=self.sonar_request_uuid,
             category='details',
-            data=details
+            data=make_json_serializable(details)
         )
 
     def save_payload(self, get_payload, post_payload):
@@ -61,7 +62,7 @@ class DataCollector:
         SonarData.objects.create(
             sonar_request_id=self.sonar_request_uuid,
             category='payload',
-            data=payload
+            data=make_json_serializable(payload)
         )
 
     def save_queries(self, executed_queries):
@@ -77,7 +78,7 @@ class DataCollector:
         SonarData.objects.create(
             sonar_request_id=self.sonar_request_uuid,
             category='queries',
-            data=queries
+            data=make_json_serializable(queries)
         )
 
     def save_headers(self, request_headers):
@@ -92,7 +93,7 @@ class DataCollector:
         SonarData.objects.create(
             sonar_request_id=self.sonar_request_uuid,
             category='headers',
-            data=headers
+            data=make_json_serializable(headers)
         )
 
     def save_session(self, session_data):
@@ -107,7 +108,7 @@ class DataCollector:
         SonarData.objects.create(
             sonar_request_id=self.sonar_request_uuid,
             category='session',
-            data=session
+            data=make_json_serializable(session)
         )
 
     def save_dumps(self):
@@ -121,7 +122,7 @@ class DataCollector:
             SonarData.objects.create(
                 sonar_request_id=self.sonar_request_uuid,
                 category='dumps',
-                data=dump
+                data=make_json_serializable(dump)
             )
         utils.reset_sonar_dump()
 
@@ -136,6 +137,6 @@ class DataCollector:
             SonarData.objects.create(
                 sonar_request_id=self.sonar_request_uuid,
                 category='exception',
-                data=ex
+                data=make_json_serializable(ex)
             )
         utils.reset_sonar_exceptions()

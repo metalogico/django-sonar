@@ -6,7 +6,7 @@ from django.utils.translation import gettext_lazy as _
 class SonarRequest(models.Model):
     uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     verb = models.CharField(max_length=255, verbose_name=_('Verb'))
-    path = models.CharField(max_length=255, verbose_name=_('Path'))
+    path = models.TextField(verbose_name=_('Path'))
     status = models.CharField(max_length=255, verbose_name=_('Status'))
     duration = models.IntegerField(verbose_name=_('Duration'))
     query_count = models.IntegerField(verbose_name=_('Query Count'), default=0)

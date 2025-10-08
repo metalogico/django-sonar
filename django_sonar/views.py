@@ -1,6 +1,7 @@
 from django.contrib.auth.views import LoginView, LogoutView
 from django.urls import reverse_lazy
 from django.views.generic import TemplateView, DetailView, RedirectView
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 from django_sonar.mixins import SuperuserRequiredMixin
 from django_sonar.models import SonarRequest, SonarData
@@ -38,10 +39,103 @@ class SonarRequestClearView(SuperuserRequiredMixin, RedirectView):
 
 class SonarRequestListView(SuperuserRequiredMixin, TemplateView):
     template_name = 'django_sonar/requests/index.html'
+    paginate_by = 25
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['sonar_requests'] = SonarRequest.objects.order_by('-created_at').all()
+        
+        # Get filter parameters from request
+        verb_filter = self.request.GET.get('verb', '')
+        path_filter = self.request.GET.get('path', '')
+        status_filter = self.request.GET.get('status', '')
+        page = self.request.GET.get('page', 1)
+        
+        # Start with all requests
+        sonar_requests = SonarRequest.objects.all()
+        
+        # Apply filters
+        if verb_filter:
+            sonar_requests = sonar_requests.filter(verb__iexact=verb_filter)
+        
+        if path_filter:
+            sonar_requests = sonar_requests.filter(path__icontains=path_filter)
+        
+        if status_filter:
+            sonar_requests = sonar_requests.filter(status=status_filter)
+        
+        # Order by created_at descending
+        sonar_requests = sonar_requests.order_by('-created_at')
+        
+        # Pagination
+        paginator = Paginator(sonar_requests, self.paginate_by)
+        try:
+            sonar_requests_page = paginator.page(page)
+        except PageNotAnInteger:
+            sonar_requests_page = paginator.page(1)
+        except EmptyPage:
+            sonar_requests_page = paginator.page(paginator.num_pages)
+        
+        context['sonar_requests'] = sonar_requests_page
+        context['page_obj'] = sonar_requests_page
+        
+        # Pass filter values back to template for form persistence
+        context['filters'] = {
+            'verb': verb_filter,
+            'path': path_filter,
+            'status': status_filter,
+        }
+        
+        return context
+
+
+class SonarRequestTableView(SuperuserRequiredMixin, TemplateView):
+    template_name = 'django_sonar/requests/table.html'
+    paginate_by = 25
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        # Get filter parameters from request
+        verb_filter = self.request.GET.get('verb', '')
+        path_filter = self.request.GET.get('path', '')
+        status_filter = self.request.GET.get('status', '')
+        page = self.request.GET.get('page', 1)
+        
+        # Start with all requests
+        sonar_requests = SonarRequest.objects.all()
+        
+        # Apply filters
+        if verb_filter:
+            sonar_requests = sonar_requests.filter(verb__iexact=verb_filter)
+        
+        if path_filter:
+            sonar_requests = sonar_requests.filter(path__icontains=path_filter)
+        
+        if status_filter:
+            sonar_requests = sonar_requests.filter(status=status_filter)
+        
+        # Order by created_at descending
+        sonar_requests = sonar_requests.order_by('-created_at')
+        
+        # Pagination
+        paginator = Paginator(sonar_requests, self.paginate_by)
+        try:
+            sonar_requests_page = paginator.page(page)
+        except PageNotAnInteger:
+            sonar_requests_page = paginator.page(1)
+        except EmptyPage:
+            sonar_requests_page = paginator.page(paginator.num_pages)
+        
+        context['sonar_requests'] = sonar_requests_page
+        context['page_obj'] = sonar_requests_page
+        
+        # Pass filter values back to template for pagination links
+        context['filters'] = {
+            'verb': verb_filter,
+            'path': path_filter,
+            'status': status_filter,
+        }
+        
         return context
 
 

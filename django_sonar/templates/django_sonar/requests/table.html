@@ -1,0 +1,122 @@
+<div id="requests-table" hx-get="{% url 'sonar_requests_table' %}?{% if filters.verb %}verb={{ filters.verb }}&{% endif %}{% if filters.path %}path={{ filters.path }}&{% endif %}{% if filters.status %}status={{ filters.status }}&{% endif %}{% if page_obj %}page={{ page_obj.number }}{% endif %}" hx-trigger="every 5s" hx-swap="outerHTML">
+{% if not sonar_requests %}
+    <div class="text-light-grey">No requests found</div>
+{% elif page_obj.paginator.count == 0 %}
+    <div class="text-light-grey">No requests found</div>
+{% else %}
+
+<table class="table table-dashed table-row-dashed table-hover">
+    <thead>
+    <tr class="">
+        <th scope="col">Verb</th>
+        <th scope="col">Path</th>
+        <th scope="col">Status</th>
+        <th scope="col">Duration</th>
+        <th scope="col">Queries</th>
+        <th scope="col">Happened</th>
+        <th class="w-50px">&nbsp;</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for sonar_request in sonar_requests %}
+        <tr class="{% if not sonar_request.is_read %}bg-light{% endif %}">
+            <td>
+                <span class="badge bg-secondary">{{ sonar_request.verb }}</span>
+            </td>
+            <td>{{ sonar_request.path }}</td>
+            <td>
+                {% if sonar_request.status < '400' %}
+                    <span class="badge bg-success">{{ sonar_request.status }}</span>
+                {% elif sonar_request.status >= '400' and sonar_request.status < '500' %}
+                    <span class="badge bg-warning">{{ sonar_request.status }}</span>
+                {% else %}
+                    <span class="badge bg-danger">{{ sonar_request.status }}</span>
+                {% endif %}
+            </td>
+            <td>{{ sonar_request.duration }}ms</td>
+            <td>
+                <span class="badge bg-info">{{ sonar_request.query_count }}</span>
+            </td>
+            <td>{{ sonar_request.created_at|timesince }} ago</td>
+            <td class="text-end">
+                <a class="btn btn-sm btn-icon btn-primary"
+                   href="{% url 'sonar_request_detail' sonar_request.uuid %}"
+                   hx-get="{% url 'sonar_request_detail' sonar_request.uuid %}"
+                   hx-swap="innerHTML"
+                   hx-target="#main-content">
+                    <i class="bi bi-arrow-right"></i>
+                </a>
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<!-- Pagination Controls -->
+{% if page_obj.paginator.num_pages > 1 %}
+<nav aria-label="Requests pagination" class="mt-3">
+    <div class="d-flex justify-content-between align-items-center">
+        <div class="text-muted small">
+            Showing {{ page_obj.start_index }} to {{ page_obj.end_index }} of {{ page_obj.paginator.count }} requests
+        </div>
+        <ul class="pagination pagination-sm mb-0">
+            {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?{% if filters.verb %}verb={{ filters.verb }}&{% endif %}{% if filters.path %}path={{ filters.path }}&{% endif %}{% if filters.status %}status={{ filters.status }}&{% endif %}page=1" 
+                       hx-get="{% url 'sonar_requests_table' %}?{% if filters.verb %}verb={{ filters.verb }}&{% endif %}{% if filters.path %}path={{ filters.path }}&{% endif %}{% if filters.status %}status={{ filters.status }}&{% endif %}page=1"
+                       hx-target="#requests-table" hx-swap="outerHTML">
+                        First
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?{% if filters.verb %}verb={{ filters.verb }}&{% endif %}{% if filters.path %}path={{ filters.path }}&{% endif %}{% if filters.status %}status={{ filters.status }}&{% endif %}page={{ page_obj.previous_page_number }}"
+                       hx-get="{% url 'sonar_requests_table' %}?{% if filters.verb %}verb={{ filters.verb }}&{% endif %}{% if filters.path %}path={{ filters.path }}&{% endif %}{% if filters.status %}status={{ filters.status }}&{% endif %}page={{ page_obj.previous_page_number }}"
+                       hx-target="#requests-table" hx-swap="outerHTML">
+                        Previous
+                    </a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">First</span>
+                </li>
+                <li class="page-item disabled">
+                    <span class="page-link">Previous</span>
+                </li>
+            {% endif %}
+
+            <li class="page-item active">
+                <span class="page-link">
+                    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                </span>
+            </li>
+
+            {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?{% if filters.verb %}verb={{ filters.verb }}&{% endif %}{% if filters.path %}path={{ filters.path }}&{% endif %}{% if filters.status %}status={{ filters.status }}&{% endif %}page={{ page_obj.next_page_number }}"
+                       hx-get="{% url 'sonar_requests_table' %}?{% if filters.verb %}verb={{ filters.verb }}&{% endif %}{% if filters.path %}path={{ filters.path }}&{% endif %}{% if filters.status %}status={{ filters.status }}&{% endif %}page={{ page_obj.next_page_number }}"
+                       hx-target="#requests-table" hx-swap="outerHTML">
+                        Next
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?{% if filters.verb %}verb={{ filters.verb }}&{% endif %}{% if filters.path %}path={{ filters.path }}&{% endif %}{% if filters.status %}status={{ filters.status }}&{% endif %}page={{ page_obj.paginator.num_pages }}"
+                       hx-get="{% url 'sonar_requests_table' %}?{% if filters.verb %}verb={{ filters.verb }}&{% endif %}{% if filters.path %}path={{ filters.path }}&{% endif %}{% if filters.status %}status={{ filters.status }}&{% endif %}page={{ page_obj.paginator.num_pages }}"
+                       hx-target="#requests-table" hx-swap="outerHTML">
+                        Last
+                    </a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">Next</span>
+                </li>
+                <li class="page-item disabled">
+                    <span class="page-link">Last</span>
+                </li>
+            {% endif %}
+        </ul>
+    </div>
+</nav>
+{% endif %}
+
+{% endif %}
+</div>
