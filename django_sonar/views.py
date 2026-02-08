@@ -1,10 +1,63 @@
 from django.contrib.auth.views import LoginView, LogoutView
+from django.http import Http404
 from django.urls import reverse_lazy
-from django.views.generic import TemplateView, DetailView, RedirectView
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.views.generic import DetailView, RedirectView, TemplateView
 
 from django_sonar.mixins import SuperuserRequiredMixin
-from django_sonar.models import SonarRequest, SonarData
+from django_sonar.models import SonarData, SonarRequest
+from django_sonar.panels import registry as panel_registry
+from django_sonar.panels.builtins import RequestsPanel
+
+
+class SonarPanelsContextMixin:
+    """Expose registered panels and active panel to templates."""
+
+    active_panel_key = None
+
+    def get_sonar_panels(self):
+        return panel_registry.all()
+
+    def get_active_panel_key(self):
+        return self.active_panel_key
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        panels = self.get_sonar_panels()
+        active_key = self.get_active_panel_key() or (panels[0].key if panels else '')
+        active_panel_url = ''
+
+        for panel in panels:
+            if panel.key == active_key:
+                active_panel_url = panel.get_list_url()
+                break
+
+        context['sonar_panels'] = panels
+        context['active_panel_key'] = active_key
+        context['active_panel_url'] = active_panel_url
+        return context
+
+
+class GenericPanelMixin:
+    """Resolve panel metadata from URL kwargs or class-level key."""
+
+    panel_key = None
+    panel = None
+
+    def get_panel_key(self):
+        return self.kwargs.get('panel_key') or self.panel_key
+
+    def get_panel(self):
+        if self.panel is None:
+            panel_key = self.get_panel_key()
+            panel = panel_registry.get(panel_key)
+
+            if panel is None:
+                raise Http404(f'Unknown panel key: {panel_key}')
+
+            self.panel = panel
+
+        return self.panel
 
 
 class SonarLoginView(LoginView):
@@ -21,8 +74,9 @@ class SonarDeniedView(TemplateView):
     template_name = 'django_sonar/auth/denied.html'
 
 
-class SonarHomeView(SuperuserRequiredMixin, TemplateView):
+class SonarHomeView(SuperuserRequiredMixin, SonarPanelsContextMixin, TemplateView):
     template_name = 'django_sonar/home/index.html'
+    active_panel_key = 'requests'
 
 
 class SonarRequestClearView(SuperuserRequiredMixin, RedirectView):
@@ -37,146 +91,79 @@ class SonarRequestClearView(SuperuserRequiredMixin, RedirectView):
 # SONAR LIST VIEWS
 #
 
-class SonarRequestListView(SuperuserRequiredMixin, TemplateView):
-    template_name = 'django_sonar/requests/index.html'
-    paginate_by = 25
+class GenericPanelListView(SuperuserRequiredMixin, GenericPanelMixin, TemplateView):
+    """Generic list renderer for registered panels."""
+
+    def dispatch(self, request, *args, **kwargs):
+        self.get_panel()
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_template_names(self):
+        return [self.get_panel().list_template]
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        
-        # Get filter parameters from request
-        verb_filter = self.request.GET.get('verb', '')
-        path_filter = self.request.GET.get('path', '')
-        status_filter = self.request.GET.get('status', '')
-        page = self.request.GET.get('page', 1)
-        
-        # Start with all requests
-        sonar_requests = SonarRequest.objects.all()
-        
-        # Apply filters
-        if verb_filter:
-            sonar_requests = sonar_requests.filter(verb__iexact=verb_filter)
-        
-        if path_filter:
-            sonar_requests = sonar_requests.filter(path__icontains=path_filter)
-        
-        if status_filter:
-            sonar_requests = sonar_requests.filter(status=status_filter)
-        
-        # Order by created_at descending
-        sonar_requests = sonar_requests.order_by('-created_at')
-        
-        # Pagination
-        paginator = Paginator(sonar_requests, self.paginate_by)
-        try:
-            sonar_requests_page = paginator.page(page)
-        except PageNotAnInteger:
-            sonar_requests_page = paginator.page(1)
-        except EmptyPage:
-            sonar_requests_page = paginator.page(paginator.num_pages)
-        
-        context['sonar_requests'] = sonar_requests_page
-        context['page_obj'] = sonar_requests_page
-        
-        # Pass filter values back to template for form persistence
-        context['filters'] = {
-            'verb': verb_filter,
-            'path': path_filter,
-            'status': status_filter,
-        }
-        
+        panel = self.get_panel()
+
+        context['panel'] = panel
+        context['active_panel_key'] = panel.key
+        context.update(panel.get_list_context(self.request))
+        return context
+
+
+class GenericPanelDetailView(SuperuserRequiredMixin, GenericPanelMixin, TemplateView):
+    """Generic detail renderer for registered panels."""
+
+    def dispatch(self, request, *args, **kwargs):
+        panel = self.get_panel()
+        if not panel.supports_detail():
+            raise Http404(f'Panel "{panel.key}" does not support detail view.')
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_template_names(self):
+        return [self.get_panel().detail_template]
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        panel = self.get_panel()
+
+        context['panel'] = panel
+        context.update(panel.get_detail_context(self.request, self.kwargs.get('uuid')))
+        return context
+
+
+class SonarRequestListView(SuperuserRequiredMixin, TemplateView):
+    template_name = 'django_sonar/requests/index.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update(RequestsPanel.get_list_context(self.request))
         return context
 
 
 class SonarRequestTableView(SuperuserRequiredMixin, TemplateView):
     template_name = 'django_sonar/requests/table.html'
-    paginate_by = 25
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        
-        # Get filter parameters from request
-        verb_filter = self.request.GET.get('verb', '')
-        path_filter = self.request.GET.get('path', '')
-        status_filter = self.request.GET.get('status', '')
-        page = self.request.GET.get('page', 1)
-        
-        # Start with all requests
-        sonar_requests = SonarRequest.objects.all()
-        
-        # Apply filters
-        if verb_filter:
-            sonar_requests = sonar_requests.filter(verb__iexact=verb_filter)
-        
-        if path_filter:
-            sonar_requests = sonar_requests.filter(path__icontains=path_filter)
-        
-        if status_filter:
-            sonar_requests = sonar_requests.filter(status=status_filter)
-        
-        # Order by created_at descending
-        sonar_requests = sonar_requests.order_by('-created_at')
-        
-        # Pagination
-        paginator = Paginator(sonar_requests, self.paginate_by)
-        try:
-            sonar_requests_page = paginator.page(page)
-        except PageNotAnInteger:
-            sonar_requests_page = paginator.page(1)
-        except EmptyPage:
-            sonar_requests_page = paginator.page(paginator.num_pages)
-        
-        context['sonar_requests'] = sonar_requests_page
-        context['page_obj'] = sonar_requests_page
-        
-        # Pass filter values back to template for pagination links
-        context['filters'] = {
-            'verb': verb_filter,
-            'path': path_filter,
-            'status': status_filter,
-        }
-        
+        context.update(RequestsPanel.get_list_context(self.request))
         return context
 
 
-class SonarExceptionsListView(SuperuserRequiredMixin, TemplateView):
-    template_name = 'django_sonar/exceptions/index.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['exceptions'] = SonarData.objects.filter(category='exception').order_by('-created_at').all()
-        return context
+class SonarExceptionsListView(GenericPanelListView):
+    panel_key = 'exceptions'
 
 
-class SonarDumpsListView(SuperuserRequiredMixin, TemplateView):
-    template_name = 'django_sonar/dumps/index.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['dumps'] = SonarData.objects.filter(category='dumps').order_by('-created_at').all()
-        return context
+class SonarDumpsListView(GenericPanelListView):
+    panel_key = 'dumps'
 
 
-class SonarSignalsListView(SuperuserRequiredMixin, TemplateView):
-    template_name = 'django_sonar/signals/index.html'
+class SonarSignalsListView(GenericPanelListView):
+    panel_key = 'signals'
 
 
-class SonarQueriesListView(SuperuserRequiredMixin, TemplateView):
-    template_name = 'django_sonar/queries/index.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        queries = SonarData.objects.filter(category='queries').order_by('-created_at').all()
-        # extract queries from SonarData queries
-        context['queries'] = []
-        for query in queries:
-            if 'executed_queries' in query.data:
-                for index, executed_query in enumerate(query.data['executed_queries'], start=0):
-                    executed_query['created_at'] = query.created_at
-                    executed_query['sonar_request_id'] = query.sonar_request_id
-                    executed_query['index'] = index
-                    context['queries'].append(executed_query)
-        return context
+class SonarQueriesListView(GenericPanelListView):
+    panel_key = 'queries'
 
 
 #
@@ -204,8 +191,10 @@ class SonarQueriesDetailView(SuperuserRequiredMixin, DetailView):
     template_name = 'django_sonar/queries/detail.html'
 
     def get_object(self):
-        queries = SonarData.objects.filter(category='queries',
-                                           sonar_request_id=self.kwargs.get('uuid')).first()
+        queries = SonarData.objects.filter(
+            category='queries',
+            sonar_request_id=self.kwargs.get('uuid'),
+        ).first()
         executed_queries = queries.data['executed_queries'] if queries else []
         single_query = executed_queries[self.kwargs.get('index')] or {}
         single_query['sonar_request_id'] = self.kwargs.get('uuid')

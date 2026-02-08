@@ -1,0 +1,33 @@
+<div class="card shadow-sm border-light" hx-get="{{ panel.get_list_url }}" hx-trigger="every 5s" hx-swap="outerHTML">
+    <div class="card-header">
+        <h5 class="card-title">Logs</h5>
+    </div>
+    <div class="card-body">
+        {% if not logs %}
+            <div class="text-light-grey">No logs found</div>
+        {% else %}
+            <table class="table table-dashed table-hover">
+                <thead>
+                <tr>
+                    <th scope="col">Level</th>
+                    <th scope="col">Logger</th>
+                    <th scope="col">Message</th>
+                    <th scope="col" class="text-end">Happened</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for log in logs %}
+                <tr>
+                    <td>
+                        <span class="badge bg-secondary">{{ log.data.level|default:'info' }}</span>
+                    </td>
+                    <td><code>{{ log.data.logger|default:'root' }}</code></td>
+                    <td>{{ log.data.message|truncatechars:120 }}</td>
+                    <td class="text-end">{{ log.created_at|timesince }} ago</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    </div>
+</div>

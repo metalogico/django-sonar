@@ -46,55 +46,34 @@
                     <div class="card shadow-sm  border-0">
                         <div class="card-body p-0 m-0">
 
-                            <ul class="nav nav-pills nav-fill flex-column">
+                            <ul class="nav nav-pills nav-fill flex-column" id="sonar-panel-nav">
+                                {% for panel in sonar_panels %}
                                 <li class="nav-item text-start">
-                                    <a class="nav-link active" href="{% url 'sonar_requests' %}" hx-trigger="click"
-                                        hx-swap="innerHTML" hx-get="{% url 'sonar_requests' %}"
-                                        hx-target="#main-content">
-                                        <i class="bi bi-arrow-left-right me-1"></i>
-                                        Requests
+                                    <a class="nav-link {% if panel.key == active_panel_key %}active{% endif %}"
+                                        href="{{ panel.get_list_url }}"
+                                        hx-trigger="click"
+                                        hx-swap="innerHTML"
+                                        hx-get="{{ panel.get_list_url }}"
+                                        hx-target="#main-content"
+                                        data-panel-key="{{ panel.key }}">
+                                        <i class="bi {{ panel.icon }} me-1"></i>
+                                        {{ panel.label }}
                                     </a>
                                 </li>
-                                <li class="nav-item text-start">
-                                    <a class="nav-link" href="{% url 'sonar_exceptions' %}" hx-trigger="click"
-                                        hx-swap="innerHTML" hx-get="{% url 'sonar_exceptions' %}"
-                                        hx-target="#main-content">
-                                        <i class="bi bi-exclamation-triangle me-1"></i>
-                                        Exceptions
-                                    </a>
-                                </li>
-                                <li class="nav-item text-start">
-                                    <a class="nav-link" href="{% url 'sonar_dumps' %}" hx-get="{% url 'sonar_dumps' %}"
-                                        hx-swap="innerHTML" hx-trigger="click" hx-target="#main-content">
-                                        <i class="bi bi-terminal-fill me-1"></i>
-                                        Dumps
-                                    </a>
-                                </li>
-                                <li class="nav-item text-start">
-                                    <a class="nav-link" href="{% url 'sonar_queries' %}"
-                                        hx-get="{% url 'sonar_queries' %}" hx-trigger="click" hx-swap="innerHTML"
-                                        hx-target="#main-content">
-                                        <i class="bi bi-database me-1"></i>
-                                        Queries
-                                    </a>
-                                </li>
-                                <li class="nav-item text-start">
-                                    <a class="nav-link" href="{% url 'sonar_signals' %}"
-                                        hx-get="{% url 'sonar_signals' %}" hx-trigger="click" hx-swap="innerHTML"
-                                        hx-target="#main-content">
-                                        <i class="bi bi-diagram-3 me-1"></i>
-                                        Signals
-                                    </a>
-                                </li>
+                                {% empty %}
+                                <li class="nav-item text-start px-2 py-3 text-muted">No panels configured</li>
+                                {% endfor %}
                             </ul>
 
                         </div>
                     </div>
                 </div>
                 <div class="col-lg-10 col-sm-12" id="main-content">
+                    {% if active_panel_url %}
                     <script>
-                        htmx.ajax('GET', "{% url 'sonar_requests' %}", { target: '#main-content' });
+                        htmx.ajax('GET', '{{ active_panel_url }}', { target: '#main-content' });
                     </script>
+                    {% endif %}
                 </div>
             </div>
             <div class="text-center fw-lighter mt-2">
@@ -103,24 +82,20 @@
         </main>
     </div>
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
+        document.addEventListener('DOMContentLoaded', function () {
             var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            tooltipTriggerList.map(function (tooltipTriggerEl) {
                 return new bootstrap.Tooltip(tooltipTriggerEl)
             })
 
-            document.querySelectorAll('.nav-link').forEach(function (link) {
+            document.querySelectorAll('#sonar-panel-nav .nav-link').forEach(function (link) {
                 link.addEventListener('click', function () {
-                    // Remove active class from all menu items
-                    document.querySelectorAll('.nav-link').forEach(function (item) {
-                        item.classList.remove('active');
-                    });
-                    // Add active class to the clicked menu item
-                    this.classList.add('active');
-                });
-            });
-
-
+                    document.querySelectorAll('#sonar-panel-nav .nav-link').forEach(function (item) {
+                        item.classList.remove('active')
+                    })
+                    this.classList.add('active')
+                })
+            })
         })
     </script>
     <script src="{% static 'django_sonar/js/sql-formatter.min.js' %}"></script>

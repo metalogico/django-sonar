@@ -204,6 +204,63 @@ from django_sonar.utils import sonar
 sonar('something', self.request.GET, [1,2,3])
 ```
 
+## 🧩 Custom Panels (For Developers)
+
+DjangoSonar supports extension panels that are auto-registered from settings, so developers can add new dashboard sections without forking core views/templates.
+
+### 1. Create a panel class
+
+Create a module in your app, for example `myapp/sonar_panels.py`:
+
+```python
+from django_sonar.panels import SonarPanel
+
+
+class EventsPanel(SonarPanel):
+    key = 'events'
+    label = 'Events'
+    icon = 'bi-calendar-event'
+    category = 'events'
+    list_template = 'myapp/sonar/events_list.html'
+    # optional:
+    # detail_template = 'myapp/sonar/events_detail.html'
+    # list_context_name = 'events'
+```
+
+Panel keys must be unique. Key collisions with built-ins or other custom panels raise an explicit configuration error.
+
+### 2. Register your panel in settings
+
+```python
+DJANGO_SONAR = {
+    'excludes': [
+        STATIC_URL,
+        MEDIA_URL,
+        '/sonar/',
+        '/admin/',
+    ],
+    'custom_panels': [
+        'myapp.sonar_panels.EventsPanel',
+    ],
+}
+```
+
+### 3. Add the panel template
+
+Create the template referenced by `list_template`, for example `myapp/templates/myapp/sonar/events_list.html`.
+
+DjangoSonar renders this template at:
+
+- `/sonar/p/events/` (list)
+- `/sonar/p/events/<uuid>/` (detail, only if `detail_template` is defined)
+
+The panel is also automatically shown in the Sonar sidebar navigation.
+
+### 4. Store data under your panel category
+
+Panel list queries use `SonarData.category` by default.  
+For the example above, save entries with category `events` (for example via middleware/hooks/services) and they will appear in your custom panel.
+
 
 ## ⚖️ License
 
