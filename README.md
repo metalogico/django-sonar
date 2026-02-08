@@ -27,6 +27,8 @@ If you use this project, please consider giving it a ⭐.
   - Exceptions
   - Queries
   - Dumps 
+  - Events
+  - Logs
   - (Signals coming soon™)
 - Request insights:
   - Payload get/post
@@ -203,6 +205,78 @@ from django_sonar.utils import sonar
 
 sonar('something', self.request.GET, [1,2,3])
 ```
+
+### Tracking events with `sonar_event()`
+
+Use `sonar_event()` to push structured domain events into Sonar during a request:
+
+```python
+from django_sonar import sonar_event
+
+sonar_event(
+    'billing.invoice_paid',
+    payload={'invoice_id': 123, 'amount': 49.90, 'currency': 'USD'},
+    level='info',
+    tags=['billing', 'payments'],
+)
+```
+
+Tracked fields:
+- `name`
+- `level`
+- `payload` (shown in the **Event Data** column)
+- `tags`
+- `timestamp`
+
+These entries are shown in the **Events** panel.
+
+### Tracking logs with `SonarHandler`
+
+Attach `django_sonar.logging.SonarHandler` to Django logging to track log entries in Sonar:
+
+```python
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {'class': 'logging.StreamHandler'},
+        'sonar': {'class': 'django_sonar.logging.SonarHandler'},
+    },
+    'loggers': {
+        '': {
+            'handlers': ['console', 'sonar'],
+            'level': 'INFO',
+        },
+    },
+}
+```
+
+Example usage:
+
+```python
+import logging
+
+logger = logging.getLogger(__name__)
+
+logger.warning(
+    'Payment retry scheduled',
+    extra={
+        'context': {'invoice_id': 123, 'attempt': 2},
+        'queue': 'payments',
+    },
+)
+```
+
+Tracked fields:
+- `logger`
+- `level`
+- `message`
+- `context` (all extra fields are normalized into this)
+- `timestamp`
+
+These entries are shown in the **Logs** panel.
+
+> Note: events/logs are buffered per request and persisted by the Sonar middleware at request end.
 
 ## 🧩 Custom Panels (For Developers)
 
