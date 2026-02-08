@@ -48,6 +48,9 @@
 
                             <ul class="nav nav-pills nav-fill flex-column" id="sonar-panel-nav">
                                 {% for panel in sonar_panels %}
+                                {% if panel.key == 'signals' %}
+                                {# Temporarily hidden from the left sidebar. #}
+                                {% else %}
                                 <li class="nav-item text-start">
                                     <a class="nav-link {% if panel.key == active_panel_key %}active{% endif %}"
                                         href="{{ panel.get_list_url }}"
@@ -61,6 +64,7 @@
                                         {{ panel.label }}
                                     </a>
                                 </li>
+                                {% endif %}
                                 {% empty %}
                                 <li class="nav-item text-start px-2 py-3 text-muted">No panels configured</li>
                                 {% endfor %}
