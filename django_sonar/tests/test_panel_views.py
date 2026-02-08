@@ -53,7 +53,12 @@ class GenericPanelViewTestCase(TestCase):
         self.event_entry = SonarData.objects.create(
             sonar_request_id=self.sonar_request.uuid,
             category='events',
-            data={'name': 'user.login'}
+            data={
+                'name': 'user.login',
+                'level': 'info',
+                'payload': {'user_id': 42, 'channel': 'web'},
+                'tags': ['auth'],
+            }
         )
 
         SonarData.objects.create(
@@ -144,6 +149,9 @@ class GenericPanelViewTestCase(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'user.login')
+        self.assertContains(response, 'Event Data')
+        self.assertContains(response, 'user_id')
+        self.assertContains(response, 'badge rounded-pill bg-info text-dark')
 
     def test_request_detail_non_htmx_renders_shell(self):
         """Direct request detail URL should render shell and bootstrap detail permalink."""
