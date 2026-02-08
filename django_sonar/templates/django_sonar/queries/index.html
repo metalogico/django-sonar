@@ -29,7 +29,8 @@
                            href="{% url 'sonar_queries_detail' uuid=query.sonar_request_id index=query.index %}"
                            hx-get="{% url 'sonar_queries_detail' uuid=query.sonar_request_id index=query.index %}"
                            hx-swap="innerHTML"
-                           hx-target="#main-content">
+                           hx-target="#main-content"
+                           hx-push-url="true">
                             <i class="bi bi-arrow-right"></i>
                         </a>
                     </td>

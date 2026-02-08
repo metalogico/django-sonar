@@ -121,6 +121,7 @@ class EventsPanel(SonarPanel):
     category = 'events'
     list_template = 'django_sonar/events/index.html'
     list_context_name = 'events'
+    list_url_name = 'sonar_events'
     order = 50
 
 
@@ -131,6 +132,7 @@ class LogsPanel(SonarPanel):
     category = 'logs'
     list_template = 'django_sonar/logs/index.html'
     list_context_name = 'logs'
+    list_url_name = 'sonar_logs'
     order = 60
 
 

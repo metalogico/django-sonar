@@ -55,6 +55,7 @@
                                         hx-swap="innerHTML"
                                         hx-get="{{ panel.get_list_url }}"
                                         hx-target="#main-content"
+                                        hx-push-url="true"
                                         data-panel-key="{{ panel.key }}">
                                         <i class="bi {{ panel.icon }} me-1"></i>
                                         {{ panel.label }}
@@ -69,9 +70,9 @@
                     </div>
                 </div>
                 <div class="col-lg-10 col-sm-12" id="main-content">
-                    {% if active_panel_url %}
+                    {% if initial_content_url %}
                     <script>
-                        htmx.ajax('GET', '{{ active_panel_url }}', { target: '#main-content' });
+                        htmx.ajax('GET', '{{ initial_content_url|escapejs }}', { target: '#main-content' });
                     </script>
                     {% endif %}
                 </div>
@@ -88,6 +89,35 @@
                 return new bootstrap.Tooltip(tooltipTriggerEl)
             })
 
+            function getPanelKeyFromPath(pathname) {
+                if (pathname.indexOf('/sonar/p/') !== -1) {
+                    var pPath = pathname.split('/sonar/p/')[1] || ''
+                    return pPath.split('/')[0] || null
+                }
+                if (pathname.indexOf('/sonar/requests') !== -1) return 'requests'
+                if (pathname.indexOf('/sonar/queries') !== -1) return 'queries'
+                if (pathname.indexOf('/sonar/exceptions') !== -1) return 'exceptions'
+                if (pathname.indexOf('/sonar/dumps') !== -1) return 'dumps'
+                if (pathname.indexOf('/sonar/signals') !== -1) return 'signals'
+                if (pathname.indexOf('/sonar/events') !== -1) return 'events'
+                if (pathname.indexOf('/sonar/logs') !== -1) return 'logs'
+                return null
+            }
+
+            function syncActivePanel() {
+                var panelKey = getPanelKeyFromPath(window.location.pathname)
+                if (!panelKey) return
+
+                document.querySelectorAll('#sonar-panel-nav .nav-link').forEach(function (item) {
+                    item.classList.remove('active')
+                })
+
+                var target = document.querySelector('#sonar-panel-nav .nav-link[data-panel-key="' + panelKey + '"]')
+                if (target) {
+                    target.classList.add('active')
+                }
+            }
+
             document.querySelectorAll('#sonar-panel-nav .nav-link').forEach(function (link) {
                 link.addEventListener('click', function () {
                     document.querySelectorAll('#sonar-panel-nav .nav-link').forEach(function (item) {
@@ -96,6 +126,11 @@
                     this.classList.add('active')
                 })
             })
+
+            document.body.addEventListener('htmx:pushedIntoHistory', syncActivePanel)
+            document.body.addEventListener('htmx:replacedInHistory', syncActivePanel)
+            document.body.addEventListener('htmx:historyRestore', syncActivePanel)
+            syncActivePanel()
         })
     </script>
     <script src="{% static 'django_sonar/js/sql-formatter.min.js' %}"></script>

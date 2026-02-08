@@ -12,9 +12,11 @@ from django_sonar.views import (
     SonarDetailQueriesView,
     SonarDetailSessionView,
     SonarDumpsListView,
+    SonarEventsListView,
     SonarExceptionsListView,
     SonarHomeView,
     SonarLoginView,
+    SonarLogsListView,
     SonarLogoutView,
     SonarQueriesDetailView,
     SonarQueriesListView,
@@ -43,6 +45,8 @@ urlpatterns = [
     path('exceptions/', SonarExceptionsListView.as_view(), name='sonar_exceptions'),
     path('queries/', SonarQueriesListView.as_view(), name='sonar_queries'),
     path('dumps/', SonarDumpsListView.as_view(), name='sonar_dumps'),
+    path('events/', SonarEventsListView.as_view(), name='sonar_events'),
+    path('logs/', SonarLogsListView.as_view(), name='sonar_logs'),
     path('signals/', SonarSignalsListView.as_view(), name='sonar_signals'),
 
     # queries detail

@@ -1,6 +1,7 @@
 from django.contrib.auth.views import LoginView, LogoutView
-from django.http import Http404
-from django.urls import reverse_lazy
+from django.http import Http404, HttpResponseRedirect
+from django.template.response import TemplateResponse
+from django.urls import reverse, reverse_lazy
 from django.views.generic import DetailView, RedirectView, TemplateView
 
 from django_sonar.mixins import SuperuserRequiredMixin
@@ -13,6 +14,7 @@ class SonarPanelsContextMixin:
     """Expose registered panels and active panel to templates."""
 
     active_panel_key = None
+    initial_content_url = None
 
     def get_sonar_panels(self):
         return panel_registry.all()
@@ -20,22 +22,72 @@ class SonarPanelsContextMixin:
     def get_active_panel_key(self):
         return self.active_panel_key
 
+    def get_initial_content_url(self):
+        return self.initial_content_url
+
+    def build_shell_context(self, active_panel_key=None, initial_content_url=None):
+        """Build shared shell context for full-page Sonar rendering."""
+        panels = self.get_sonar_panels()
+        resolved_active_key = active_panel_key or self.get_active_panel_key() or (panels[0].key if panels else '')
+
+        resolved_initial_url = initial_content_url or self.get_initial_content_url()
+        if not resolved_initial_url:
+            for panel in panels:
+                if panel.key == resolved_active_key:
+                    resolved_initial_url = panel.get_list_url()
+                    break
+
+        return {
+            'sonar_panels': panels,
+            'active_panel_key': resolved_active_key,
+            'initial_content_url': resolved_initial_url or '',
+        }
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
-        panels = self.get_sonar_panels()
-        active_key = self.get_active_panel_key() or (panels[0].key if panels else '')
-        active_panel_url = ''
-
-        for panel in panels:
-            if panel.key == active_key:
-                active_panel_url = panel.get_list_url()
-                break
-
-        context['sonar_panels'] = panels
-        context['active_panel_key'] = active_key
-        context['active_panel_url'] = active_panel_url
+        context.update(self.build_shell_context())
         return context
+
+
+class SonarDualModeMixin(SonarPanelsContextMixin):
+    """Render partials for HTMX requests, full shell for direct browser requests."""
+
+    shell_template_name = 'django_sonar/home/index.html'
+
+    def is_htmx_request(self):
+        return self.request.headers.get('HX-Request') == 'true'
+
+    def get_shell_active_panel_key(self):
+        return self.get_active_panel_key()
+
+    def get_shell_initial_content_url(self):
+        return self.request.get_full_path()
+
+    def render_shell_response(self):
+        context = self.build_shell_context(
+            active_panel_key=self.get_shell_active_panel_key(),
+            initial_content_url=self.get_shell_initial_content_url(),
+        )
+        return TemplateResponse(self.request, self.shell_template_name, context)
+
+    def get(self, request, *args, **kwargs):
+        if not self.is_htmx_request():
+            return self.render_shell_response()
+        return super().get(request, *args, **kwargs)
+
+
+class SonarRequestDetailRedirectMixin:
+    """Redirect direct browser requests from partial endpoints to request detail permalink."""
+
+    def is_htmx_request(self):
+        return self.request.headers.get('HX-Request') == 'true'
+
+    def get(self, request, *args, **kwargs):
+        if not self.is_htmx_request():
+            return HttpResponseRedirect(
+                reverse('sonar_request_detail', kwargs={'uuid': self.kwargs.get('uuid')})
+            )
+        return super().get(request, *args, **kwargs)
 
 
 class GenericPanelMixin:
@@ -91,7 +143,7 @@ class SonarRequestClearView(SuperuserRequiredMixin, RedirectView):
 # SONAR LIST VIEWS
 #
 
-class GenericPanelListView(SuperuserRequiredMixin, GenericPanelMixin, TemplateView):
+class GenericPanelListView(SuperuserRequiredMixin, GenericPanelMixin, SonarDualModeMixin, TemplateView):
     """Generic list renderer for registered panels."""
 
     def dispatch(self, request, *args, **kwargs):
@@ -100,6 +152,9 @@ class GenericPanelListView(SuperuserRequiredMixin, GenericPanelMixin, TemplateVi
 
     def get_template_names(self):
         return [self.get_panel().list_template]
+
+    def get_active_panel_key(self):
+        return self.get_panel().key
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -111,7 +166,7 @@ class GenericPanelListView(SuperuserRequiredMixin, GenericPanelMixin, TemplateVi
         return context
 
 
-class GenericPanelDetailView(SuperuserRequiredMixin, GenericPanelMixin, TemplateView):
+class GenericPanelDetailView(SuperuserRequiredMixin, GenericPanelMixin, SonarDualModeMixin, TemplateView):
     """Generic detail renderer for registered panels."""
 
     def dispatch(self, request, *args, **kwargs):
@@ -123,6 +178,9 @@ class GenericPanelDetailView(SuperuserRequiredMixin, GenericPanelMixin, Template
     def get_template_names(self):
         return [self.get_panel().detail_template]
 
+    def get_active_panel_key(self):
+        return self.get_panel().key
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         panel = self.get_panel()
@@ -132,8 +190,9 @@ class GenericPanelDetailView(SuperuserRequiredMixin, GenericPanelMixin, Template
         return context
 
 
-class SonarRequestListView(SuperuserRequiredMixin, TemplateView):
+class SonarRequestListView(SuperuserRequiredMixin, SonarDualModeMixin, TemplateView):
     template_name = 'django_sonar/requests/index.html'
+    active_panel_key = 'requests'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -143,6 +202,16 @@ class SonarRequestListView(SuperuserRequiredMixin, TemplateView):
 
 class SonarRequestTableView(SuperuserRequiredMixin, TemplateView):
     template_name = 'django_sonar/requests/table.html'
+
+    def get(self, request, *args, **kwargs):
+        if request.headers.get('HX-Request') != 'true':
+            target_url = reverse('sonar_requests')
+            query_string = request.GET.urlencode()
+            if query_string:
+                target_url = f'{target_url}?{query_string}'
+            return HttpResponseRedirect(target_url)
+
+        return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -166,14 +235,23 @@ class SonarQueriesListView(GenericPanelListView):
     panel_key = 'queries'
 
 
+class SonarEventsListView(GenericPanelListView):
+    panel_key = 'events'
+
+
+class SonarLogsListView(GenericPanelListView):
+    panel_key = 'logs'
+
+
 #
 # SONAR Detail Views
 #
 
 
-class SonarRequestDetailView(SuperuserRequiredMixin, DetailView):
+class SonarRequestDetailView(SuperuserRequiredMixin, SonarDualModeMixin, DetailView):
     context_object_name = 'sonar_request'
     template_name = 'django_sonar/requests/detail.html'
+    active_panel_key = 'requests'
 
     def get_object(self):
         record = SonarRequest.objects.get(uuid=self.kwargs.get('uuid'))
@@ -186,9 +264,10 @@ class SonarRequestDetailView(SuperuserRequiredMixin, DetailView):
         return record
 
 
-class SonarQueriesDetailView(SuperuserRequiredMixin, DetailView):
+class SonarQueriesDetailView(SuperuserRequiredMixin, SonarDualModeMixin, DetailView):
     context_object_name = 'sonar_query'
     template_name = 'django_sonar/queries/detail.html'
+    active_panel_key = 'queries'
 
     def get_object(self):
         queries = SonarData.objects.filter(
@@ -201,7 +280,7 @@ class SonarQueriesDetailView(SuperuserRequiredMixin, DetailView):
         return single_query
 
 
-class SonarDetailPayloadView(SuperuserRequiredMixin, TemplateView):
+class SonarDetailPayloadView(SuperuserRequiredMixin, SonarRequestDetailRedirectMixin, TemplateView):
     template_name = 'django_sonar/requests/detail_payload.html'
 
     def get_context_data(self, **kwargs):
@@ -211,7 +290,7 @@ class SonarDetailPayloadView(SuperuserRequiredMixin, TemplateView):
         return context
 
 
-class SonarDetailHeadersView(SuperuserRequiredMixin, TemplateView):
+class SonarDetailHeadersView(SuperuserRequiredMixin, SonarRequestDetailRedirectMixin, TemplateView):
     template_name = 'django_sonar/requests/detail_headers.html'
 
     def get_context_data(self, **kwargs):
@@ -221,7 +300,7 @@ class SonarDetailHeadersView(SuperuserRequiredMixin, TemplateView):
         return context
 
 
-class SonarDetailQueriesView(SuperuserRequiredMixin, TemplateView):
+class SonarDetailQueriesView(SuperuserRequiredMixin, SonarRequestDetailRedirectMixin, TemplateView):
     template_name = 'django_sonar/requests/detail_queries.html'
 
     def get_context_data(self, **kwargs):
@@ -231,7 +310,7 @@ class SonarDetailQueriesView(SuperuserRequiredMixin, TemplateView):
         return context
 
 
-class SonarDetailSessionView(SuperuserRequiredMixin, TemplateView):
+class SonarDetailSessionView(SuperuserRequiredMixin, SonarRequestDetailRedirectMixin, TemplateView):
     template_name = 'django_sonar/requests/detail_session.html'
 
     def get_context_data(self, **kwargs):
@@ -241,7 +320,7 @@ class SonarDetailSessionView(SuperuserRequiredMixin, TemplateView):
         return context
 
 
-class SonarDetailMiddlewaresView(SuperuserRequiredMixin, TemplateView):
+class SonarDetailMiddlewaresView(SuperuserRequiredMixin, SonarRequestDetailRedirectMixin, TemplateView):
     template_name = 'django_sonar/requests/detail_middlewares.html'
 
     def get_context_data(self, **kwargs):
@@ -251,7 +330,7 @@ class SonarDetailMiddlewaresView(SuperuserRequiredMixin, TemplateView):
         return context
 
 
-class SonarDetailDumpsView(SuperuserRequiredMixin, TemplateView):
+class SonarDetailDumpsView(SuperuserRequiredMixin, SonarRequestDetailRedirectMixin, TemplateView):
     template_name = 'django_sonar/requests/detail_dumps.html'
 
     def get_context_data(self, **kwargs):
@@ -264,7 +343,7 @@ class SonarDetailDumpsView(SuperuserRequiredMixin, TemplateView):
         return context
 
 
-class SonarDetailExceptionView(SuperuserRequiredMixin, TemplateView):
+class SonarDetailExceptionView(SuperuserRequiredMixin, SonarRequestDetailRedirectMixin, TemplateView):
     template_name = 'django_sonar/requests/detail_exception.html'
 
     def get_context_data(self, **kwargs):
