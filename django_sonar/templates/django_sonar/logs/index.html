@@ -1,3 +1,5 @@
+{% load sonar_badges %}
+
 <div class="card shadow-sm border-light" hx-get="{{ panel.get_list_url }}" hx-trigger="every 5s" hx-swap="outerHTML">
     <div class="card-header">
         <h5 class="card-title">Logs</h5>
@@ -12,6 +14,7 @@
                     <th scope="col">Level</th>
                     <th scope="col">Logger</th>
                     <th scope="col">Message</th>
+                    <th scope="col">Context</th>
                     <th scope="col" class="text-end">Happened</th>
                 </tr>
                 </thead>
@@ -19,10 +22,21 @@
                 {% for log in logs %}
                 <tr>
                     <td>
-                        <span class="badge bg-secondary">{{ log.data.level|default:'info' }}</span>
+                        {% with log_level=log.data.level|default:'info' %}
+                            <span class="badge rounded-pill {{ log_level|sonar_level_badge_class }}">{{ log_level }}</span>
+                        {% endwith %}
                     </td>
                     <td><code>{{ log.data.logger|default:'root' }}</code></td>
-                    <td>{{ log.data.message|truncatechars:120 }}</td>
+                    <td>{{ log.data.message|default:'-'|truncatechars:120 }}</td>
+                    <td>
+                        {% if log.data.context %}
+                            <code class="text-wrap">{{ log.data.context|truncatechars:120 }}</code>
+                        {% elif log.data.extra %}
+                            <code class="text-wrap">{{ log.data.extra|truncatechars:120 }}</code>
+                        {% else %}
+                            <span class="text-muted">-</span>
+                        {% endif %}
+                    </td>
                     <td class="text-end">{{ log.created_at|timesince }} ago</td>
                 </tr>
                 {% endfor %}

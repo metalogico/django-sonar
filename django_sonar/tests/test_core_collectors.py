@@ -220,7 +220,7 @@ class DataCollectorTestCase(BaseMiddlewareTestCase):
             'logger': 'test.logger',
             'level': 'warning',
             'message': 'Something happened',
-            'extra': {'request_id': 'abc'},
+            'context': {'request_id': 'abc'},
         }
         utils.add_sonar_log(log_info)
 

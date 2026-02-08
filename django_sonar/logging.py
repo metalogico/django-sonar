@@ -38,21 +38,33 @@ class SonarHandler(logging.Handler):
     def emit(self, record):
         try:
             message = self.format(record) if self.formatter else record.getMessage()
+            context = self._extract_context(record)
             log_entry = {
                 'logger': record.name,
                 'level': record.levelname.lower(),
                 'message': message,
-                'extra': self._extract_extra(record),
+                'context': context,
+                # Keep backward compatibility for dashboards expecting `extra`.
+                'extra': context,
                 'timestamp': timezone.now().isoformat(),
             }
             utils.add_sonar_log(make_json_serializable(log_entry))
         except Exception:
             self.handleError(record)
 
-    def _extract_extra(self, record):
-        extras = {}
+    def _extract_context(self, record):
+        context = {}
         for key, value in record.__dict__.items():
             if key in _DEFAULT_RECORD_KEYS:
                 continue
-            extras[key] = value
-        return extras
+
+            if key == 'context':
+                if isinstance(value, dict):
+                    context.update(value)
+                else:
+                    context['context'] = value
+                continue
+
+            context[key] = value
+
+        return context
