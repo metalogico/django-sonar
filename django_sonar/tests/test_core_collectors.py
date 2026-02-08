@@ -4,8 +4,6 @@ Tests for core.collectors module.
 Tests DataCollector class functionality for data persistence.
 """
 
-import uuid
-from django.test import override_settings
 from django_sonar.core.collectors import DataCollector
 from django_sonar.models import SonarRequest, SonarData
 from django_sonar import utils
@@ -108,6 +106,54 @@ class DataCollectorTestCase(BaseMiddlewareTestCase):
         )
         self.assertEqual(data.data['session_data'], session_data)
 
+    def test_save_entry_generic_category(self):
+        """Test save_entry persists arbitrary category payloads."""
+        payload = {'name': 'user.login', 'success': True}
+
+        self.collector.save_entry('events', payload)
+
+        data = SonarData.objects.get(
+            sonar_request=self.sonar_request,
+            category='events'
+        )
+        self.assertEqual(data.data, payload)
+
+    def test_save_entry_with_tags_and_meta(self):
+        """Test save_entry stores optional tags and metadata."""
+        payload = {'name': 'job.completed'}
+        tags = ['queue', 'background']
+        meta = {'attempt': 2}
+
+        self.collector.save_entry('events', payload, tags=tags, meta=meta)
+
+        data = SonarData.objects.get(
+            sonar_request=self.sonar_request,
+            category='events'
+        )
+        self.assertEqual(data.data['payload'], payload)
+        self.assertEqual(data.data['tags'], tags)
+        self.assertEqual(data.data['meta'], meta)
+
+    def test_save_entry_with_request_uuid_override(self):
+        """Test save_entry can target an explicit request UUID."""
+        request2 = SonarRequest.objects.create(
+            verb='POST',
+            path='/override/',
+            status='201',
+            duration=200,
+            ip_address='127.0.0.2',
+            hostname='testhost2',
+            is_ajax=False
+        )
+
+        self.collector.save_entry('events', {'name': 'override'}, request_uuid=request2.uuid)
+
+        data = SonarData.objects.get(
+            sonar_request=request2,
+            category='events'
+        )
+        self.assertEqual(data.data['name'], 'override')
+
     def test_save_dumps(self):
         """Test save_dumps retrieves and saves dumps from utils"""
         # Add some dumps to thread local storage
@@ -147,6 +193,46 @@ class DataCollectorTestCase(BaseMiddlewareTestCase):
         
         # Verify exceptions were reset
         self.assertEqual(len(utils.get_sonar_exceptions()), 0)
+
+    def test_save_events(self):
+        """Test save_events retrieves and saves structured events."""
+        event_info = {
+            'name': 'user.login',
+            'level': 'info',
+            'payload': {'user_id': 1},
+            'tags': ['auth'],
+        }
+        utils.add_sonar_event(event_info)
+
+        self.collector.save_events()
+
+        events = SonarData.objects.filter(
+            sonar_request=self.sonar_request,
+            category='events'
+        )
+        self.assertEqual(events.count(), 1)
+        self.assertEqual(events.first().data, event_info)
+        self.assertEqual(len(utils.get_sonar_events()), 0)
+
+    def test_save_logs(self):
+        """Test save_logs retrieves and saves structured logs."""
+        log_info = {
+            'logger': 'test.logger',
+            'level': 'warning',
+            'message': 'Something happened',
+            'context': {'request_id': 'abc'},
+        }
+        utils.add_sonar_log(log_info)
+
+        self.collector.save_logs()
+
+        logs = SonarData.objects.filter(
+            sonar_request=self.sonar_request,
+            category='logs'
+        )
+        self.assertEqual(logs.count(), 1)
+        self.assertEqual(logs.first().data, log_info)
+        self.assertEqual(len(utils.get_sonar_logs()), 0)
 
     def test_collector_with_different_request(self):
         """Test collector can work with multiple requests"""

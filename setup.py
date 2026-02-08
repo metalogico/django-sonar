@@ -1,10 +1,21 @@
+import re
+from pathlib import Path
+
 from setuptools import setup, find_packages
 
-import django_sonar
+
+def get_version():
+    """Read package version from django_sonar/__init__.py without importing the package."""
+    init_path = Path(__file__).parent / 'django_sonar' / '__init__.py'
+    content = init_path.read_text(encoding='utf-8')
+    match = re.search(r'^VERSION\s*=\s*["\']([^"\']+)["\']', content, re.MULTILINE)
+    if not match:
+        raise RuntimeError('Unable to find VERSION in django_sonar/__init__.py')
+    return match.group(1)
 
 setup(
     name='django_sonar',
-    version=django_sonar.VERSION,
+    version=get_version(),
     author='Metalogico',
     author_email='michele.brandolin@gmail.com',
     description='The missing debug tool for Django',
@@ -16,9 +27,14 @@ setup(
     },
 
     license='MIT',
-    packages=['django_sonar'],
+    packages=find_packages(include=['django_sonar', 'django_sonar.*']),
     include_package_data=True,
-    package_data={'django_sonar': ['templates/*']},
+    package_data={
+        'django_sonar': [
+            'templates/**/*.html',
+            'static/**/*',
+        ]
+    },
     install_requires=[
         'Django>=4.0',
     ],

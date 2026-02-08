@@ -6,7 +6,7 @@
 
         <!-- Filter Form -->
         <form method="get" action="{% url 'sonar_requests' %}" class="mb-4" hx-get="{% url 'sonar_requests' %}"
-            hx-target="#main-content" hx-swap="innerHTML">
+            hx-target="#main-content" hx-swap="innerHTML" hx-push-url="true">
             <div class="row g-3">
                 <div class="col-md-3">
                     <label for="verb" class="form-label">Method</label>
@@ -34,7 +34,8 @@
                 <div class="col-md-2 d-flex align-items-end gap-2">
                     <button type="submit" class="btn btn-sm btn-primary">Filter</button>
                     <a href="{% url 'sonar_requests' %}" class="btn btn-sm btn-primary"
-                        hx-get="{% url 'sonar_requests' %}" hx-target="#main-content" hx-swap="innerHTML">Clear</a>
+                        hx-get="{% url 'sonar_requests' %}" hx-target="#main-content" hx-swap="innerHTML"
+                        hx-push-url="true">Clear</a>
                 </div>
             </div>
         </form>
