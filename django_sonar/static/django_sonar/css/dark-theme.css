@@ -15,7 +15,7 @@
 
     --sonar-text: #e1e4ea;
     --sonar-text-secondary: #8b92a5;
-    --sonar-text-muted: #5c6478;
+    --sonar-text-muted: #7b839a;
 
     --sonar-success: #22c55e;
     --sonar-warning: #f59e0b;
@@ -53,9 +53,26 @@
     color: var(--sonar-text);
 }
 
+[data-theme="dark"] .table {
+    --bs-table-bg: var(--sonar-surface);
+    --bs-table-color: var(--sonar-text);
+    --bs-table-border-color: var(--sonar-border-light);
+    --bs-table-striped-bg: var(--sonar-surface-hover);
+    --bs-table-hover-bg: var(--sonar-surface-hover);
+    --bs-table-hover-color: var(--sonar-text);
+    color: var(--sonar-text);
+    border-color: var(--sonar-border-light);
+}
+
 [data-theme="dark"] .table thead th {
     color: var(--sonar-text-secondary);
+    background-color: var(--sonar-surface);
     border-bottom-color: var(--sonar-border) !important;
+}
+
+[data-theme="dark"] .table tbody tr {
+    background-color: var(--sonar-surface);
+    border-color: var(--sonar-border-light);
 }
 
 [data-theme="dark"] .table tbody td {
@@ -65,6 +82,7 @@
 
 [data-theme="dark"] .table-hover tbody tr:hover {
     background-color: var(--sonar-surface-hover) !important;
+    color: var(--sonar-text) !important;
 }
 
 [data-theme="dark"] tr.sonar-unread {
