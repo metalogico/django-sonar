@@ -4,9 +4,7 @@ The missing debug tool for django.
 
 DjangoSonar is a comprehensive debugging and introspection tool for Django applications, inspired by Laravel Telescope.
 
-
-<img width="1316" height="632" alt="image" src="https://github.com/user-attachments/assets/ccde5d44-47df-4c55-8463-f9508ec3157f" />
-
+<img width="1254" height="642" alt="image" src="https://github.com/user-attachments/assets/a6ffb25f-5aaa-47ba-bdca-4961c9d91411" />
 
 
 ## 🥳 Motivation
