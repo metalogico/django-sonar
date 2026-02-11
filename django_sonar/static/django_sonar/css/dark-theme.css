@@ -1,7 +1,235 @@
-:root {
-    --primary-color: #3bd671; /* Bright green */
-    --primary-dark: #2a9d48; /* Darker green for hover */
-    --background-color: #121212; /* Dark background */
-    --text-color: #e0e0e0; /* Light grey for text */
-    --link-hover-color: #aad576; /* Lighter green for link hovers */
+/* ============================================
+   Django Sonar — Dark Theme
+   ============================================ */
+
+[data-theme="dark"] {
+    --sonar-accent: #4ade80;
+    --sonar-accent-hover: #6ee7a0;
+    --sonar-accent-subtle: #132a1c;
+
+    --sonar-bg: #0f1117;
+    --sonar-surface: #1a1d27;
+    --sonar-surface-hover: #222633;
+    --sonar-border: #2a2e3a;
+    --sonar-border-light: #232736;
+
+    --sonar-text: #e1e4ea;
+    --sonar-text-secondary: #8b92a5;
+    --sonar-text-muted: #5c6478;
+
+    --sonar-success: #22c55e;
+    --sonar-warning: #f59e0b;
+    --sonar-danger: #ef4444;
+    --sonar-info: #06b6d4;
+
+    color-scheme: dark;
+}
+
+[data-theme="dark"] body {
+    background-color: var(--sonar-bg) !important;
+    color: var(--sonar-text) !important;
+}
+
+[data-theme="dark"] .sonar-header {
+    background: var(--sonar-surface);
+    border-bottom-color: var(--sonar-border);
+}
+
+[data-theme="dark"] .sonar-logo .logo-text {
+    color: var(--sonar-text) !important;
+}
+
+[data-theme="dark"] .card {
+    background-color: var(--sonar-surface) !important;
+    border-color: var(--sonar-border) !important;
+}
+
+[data-theme="dark"] .card-header {
+    background-color: var(--sonar-surface) !important;
+    border-bottom-color: var(--sonar-border) !important;
+}
+
+[data-theme="dark"] .card-header .card-title {
+    color: var(--sonar-text);
+}
+
+[data-theme="dark"] .table thead th {
+    color: var(--sonar-text-secondary);
+    border-bottom-color: var(--sonar-border) !important;
+}
+
+[data-theme="dark"] .table tbody td {
+    color: var(--sonar-text);
+    border-bottom-color: var(--sonar-border-light) !important;
+}
+
+[data-theme="dark"] .table-hover tbody tr:hover {
+    background-color: var(--sonar-surface-hover) !important;
+}
+
+[data-theme="dark"] tr.sonar-unread {
+    background-color: var(--sonar-accent-subtle);
+}
+
+[data-theme="dark"] tr.sonar-unread:hover {
+    background-color: #1a3324 !important;
+}
+
+[data-theme="dark"] code {
+    color: var(--sonar-accent-hover);
+    background: var(--sonar-accent-subtle);
+}
+
+[data-theme="dark"] pre {
+    background: #141720;
+    border-color: var(--sonar-border);
+    color: var(--sonar-text);
+}
+
+[data-theme="dark"] .form-control,
+[data-theme="dark"] .form-select {
+    background-color: #141720;
+    border-color: var(--sonar-border);
+    color: var(--sonar-text);
+}
+
+[data-theme="dark"] .form-control:focus,
+[data-theme="dark"] .form-select:focus {
+    background-color: #141720;
+    border-color: var(--sonar-accent);
+    color: var(--sonar-text);
+    box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.15);
+}
+
+[data-theme="dark"] .text-muted {
+    color: var(--sonar-text-muted) !important;
+}
+
+[data-theme="dark"] .text-dark {
+    color: var(--sonar-text) !important;
+}
+
+[data-theme="dark"] .pagination .page-link {
+    background-color: var(--sonar-surface);
+    border-color: var(--sonar-border);
+    color: var(--sonar-text-secondary);
+}
+
+[data-theme="dark"] .pagination .page-link:hover {
+    background-color: var(--sonar-surface-hover);
+    border-color: var(--sonar-border);
+    color: var(--sonar-text);
+}
+
+[data-theme="dark"] .pagination .page-item.active .page-link {
+    background-color: var(--sonar-accent);
+    border-color: var(--sonar-accent);
+}
+
+[data-theme="dark"] .nav-detail {
+    border-bottom-color: var(--sonar-border);
+}
+
+[data-theme="dark"] .nav-detail .nav-item .nav-link:hover {
+    background: var(--sonar-surface-hover) !important;
+}
+
+[data-theme="dark"] .detail-row {
+    border-bottom-color: var(--sonar-border-light);
+}
+
+[data-theme="dark"] .detail-label {
+    color: var(--sonar-text-secondary);
+}
+
+[data-theme="dark"] .btn-ghost {
+    border-color: var(--sonar-border);
+    color: var(--sonar-text-secondary) !important;
+}
+
+[data-theme="dark"] .btn-ghost:hover {
+    background: var(--sonar-surface-hover);
+    color: var(--sonar-text) !important;
+}
+
+[data-theme="dark"] .btn-danger-ghost {
+    border-color: var(--sonar-border);
+}
+
+[data-theme="dark"] .btn-danger-ghost:hover {
+    background: #2d1215;
+    border-color: #5c2023;
+}
+
+[data-theme="dark"] .btn-outline-secondary {
+    border-color: var(--sonar-border);
+    color: var(--sonar-text-secondary) !important;
+}
+
+[data-theme="dark"] .btn-outline-secondary:hover {
+    background-color: var(--sonar-surface-hover);
+    color: var(--sonar-text) !important;
+}
+
+[data-theme="dark"] .bg-light {
+    background-color: var(--sonar-surface-hover) !important;
+}
+
+[data-theme="dark"] .sonar-login-wrapper {
+    background: var(--sonar-bg);
+}
+
+[data-theme="dark"] .sonar-login-title {
+    color: var(--sonar-text);
+}
+
+[data-theme="dark"] .empty-state {
+    color: var(--sonar-text-muted);
+}
+
+/* Theme toggle button */
+.theme-toggle {
+    background: none;
+    border: 1px solid var(--sonar-border);
+    border-radius: 5px;
+    color: var(--sonar-text-secondary);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    transition: all 0.15s ease;
+    font-size: 0.9375rem;
+}
+
+.theme-toggle:hover {
+    background: var(--sonar-surface-hover);
+    color: var(--sonar-text);
+    border-color: var(--sonar-border);
+}
+
+[data-theme="dark"] .theme-toggle .bi-moon-fill {
+    display: none;
+}
+
+[data-theme="dark"] .theme-toggle .bi-sun-fill {
+    display: inline;
+}
+
+.theme-toggle .bi-sun-fill {
+    display: none;
+}
+
+.theme-toggle .bi-moon-fill {
+    display: inline;
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb {
+    background: #3a3f4d;
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+    background: #4a5060;
 }

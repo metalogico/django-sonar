@@ -1,29 +1,35 @@
 <div id="requests-table" hx-get="{% url 'sonar_requests_table' %}?{% if filters.verb %}verb={{ filters.verb }}&{% endif %}{% if filters.path %}path={{ filters.path }}&{% endif %}{% if filters.status %}status={{ filters.status }}&{% endif %}{% if page_obj %}page={{ page_obj.number }}{% endif %}" hx-trigger="every 5s" hx-swap="outerHTML">
 {% if not sonar_requests %}
-    <div class="text-light-grey">No requests found</div>
+    <div class="empty-state">
+        <i class="bi bi-inbox"></i>
+        <div>No requests found</div>
+    </div>
 {% elif page_obj.paginator.count == 0 %}
-    <div class="text-light-grey">No requests found</div>
+    <div class="empty-state">
+        <i class="bi bi-inbox"></i>
+        <div>No requests found</div>
+    </div>
 {% else %}
 
-<table class="table table-dashed table-row-dashed table-hover">
+<table class="table table-hover">
     <thead>
-    <tr class="">
-        <th scope="col">Verb</th>
+    <tr>
+        <th scope="col">Method</th>
         <th scope="col">Path</th>
         <th scope="col">Status</th>
         <th scope="col">Duration</th>
         <th scope="col">Queries</th>
-        <th scope="col">Happened</th>
+        <th scope="col">When</th>
         <th class="w-50px">&nbsp;</th>
     </tr>
     </thead>
     <tbody>
     {% for sonar_request in sonar_requests %}
-        <tr class="{% if not sonar_request.is_read %}bg-light{% endif %}">
+        <tr class="{% if not sonar_request.is_read %}sonar-unread{% endif %}">
             <td>
                 <span class="badge bg-secondary">{{ sonar_request.verb }}</span>
             </td>
-            <td>{{ sonar_request.path }}</td>
+            <td><code>{{ sonar_request.path }}</code></td>
             <td>
                 {% if sonar_request.status < '400' %}
                     <span class="badge bg-success">{{ sonar_request.status }}</span>
@@ -37,7 +43,7 @@
             <td>
                 <span class="badge bg-info">{{ sonar_request.query_count }}</span>
             </td>
-            <td>{{ sonar_request.created_at|timesince }} ago</td>
+            <td class="text-muted">{{ sonar_request.created_at|timesince }} ago</td>
             <td class="text-end">
                 <a class="btn btn-sm btn-icon btn-primary"
                    href="{% url 'sonar_request_detail' sonar_request.uuid %}"

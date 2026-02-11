@@ -1,28 +1,23 @@
-<div class="card shadow-sm  border-light mt-3">
+<div class="card mt-3">
     <div class="card-header">
         <h6 class="card-title">Total Queries: <span class="badge bg-info">{{ queries.query_count|default:0 }}</span></h6>
     </div>
     <div class="card-body">
-
         {% if not queries.executed_queries %}
-            <div class="text-light-grey">No executed queries</div>
+            <div class="text-muted">No executed queries</div>
         {% endif %}
-    
-        {% for query in queries.executed_queries %}
 
-            <div class="row">
-                <div class="col border-bottom border-1 border-light pb-3">
+        {% for query in queries.executed_queries %}
+            <div class="row detail-row">
+                <div class="col">
                     <code id="query_index_{{ forloop.counter0 }}">
                         {{ query.sql|safe }}
                     </code>
                     <div>
-                        <span class="text-muted text-small fw-lighter">{{ query.time|floatformat:2 }}ms</span>
+                        <span class="text-muted fw-small">{{ query.time|floatformat:2 }}ms</span>
                     </div>
                 </div>
             </div>
-
         {% endfor %}
-
     </div>
-
 </div>

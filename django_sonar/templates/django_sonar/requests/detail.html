@@ -1,47 +1,47 @@
-<div class="card shadow-sm  border-light mb-3">
+<div class="card mb-3">
     <div class="card-header">
-        <h5 class="card-title">Request: {{ sonar_request.uuid }}</h5>
+        <h5 class="card-title">Request Detail</h5>
     </div>
     <div class="card-body">
-        <div class="row">
-            <div class="col-3 text-muted">Time</div>
-            <div class="col-9">
+        <div class="row detail-row">
+            <div class="col-3 detail-label">Time</div>
+            <div class="col-9 detail-value">
                 {{ sonar_request.created_at }} ({{ sonar_request.created_at|timesince }} ago)
             </div>
         </div>
-        <div class="row">
-            <div class="col-3 text-muted">Is Ajax</div>
-            <div class="col-9">
+        <div class="row detail-row">
+            <div class="col-3 detail-label">Ajax</div>
+            <div class="col-9 detail-value">
                 {{ sonar_request.is_ajax }}
             </div>
         </div>
-        <div class="row">
-            <div class="col-3 text-muted">Hostname</div>
-            <div class="col-9">
+        <div class="row detail-row">
+            <div class="col-3 detail-label">Hostname</div>
+            <div class="col-9 detail-value">
                 {{ sonar_request.hostname }}
             </div>
         </div>
-        <div class="row">
-            <div class="col-3 text-muted">Method</div>
-            <div class="col-9">
-                {{ sonar_request.verb }}
+        <div class="row detail-row">
+            <div class="col-3 detail-label">Method</div>
+            <div class="col-9 detail-value">
+                <span class="badge bg-secondary">{{ sonar_request.verb }}</span>
             </div>
         </div>
-        <div class="row">
-            <div class="col-3 text-muted">View function</div>
-            <div class="col-9">
-                {{ sonar_request.details.view_func }}
+        <div class="row detail-row">
+            <div class="col-3 detail-label">View function</div>
+            <div class="col-9 detail-value">
+                <code>{{ sonar_request.details.view_func }}</code>
             </div>
         </div>
-        <div class="row">
-            <div class="col-3 text-muted">Path</div>
-            <div class="col-9">
-                {{ sonar_request.path }}
+        <div class="row detail-row">
+            <div class="col-3 detail-label">Path</div>
+            <div class="col-9 detail-value">
+                <code>{{ sonar_request.path }}</code>
             </div>
         </div>
-        <div class="row">
-            <div class="col-3 text-muted">Status</div>
-            <div class="col-9">
+        <div class="row detail-row">
+            <div class="col-3 detail-label">Status</div>
+            <div class="col-9 detail-value">
                 {% if sonar_request.status == '200' %}
                     <span class="badge bg-success">{{ sonar_request.status }}</span>
                 {% elif sonar_request.status >= '400' and sonar_request.status < '500' %}
@@ -51,35 +51,35 @@
                 {% endif %}
             </div>
         </div>
-        <div class="row">
-            <div class="col-3 text-muted">Duration</div>
-            <div class="col-9">
+        <div class="row detail-row">
+            <div class="col-3 detail-label">Duration</div>
+            <div class="col-9 detail-value">
                 {{ sonar_request.duration }}ms
             </div>
         </div>
-        <div class="row">
-            <div class="col-3 text-muted">Query Count</div>
-            <div class="col-9">
+        <div class="row detail-row">
+            <div class="col-3 detail-label">Query Count</div>
+            <div class="col-9 detail-value">
                 <span class="badge bg-info">{{ sonar_request.query_count }}</span>
             </div>
         </div>
-        <div class="row">
-            <div class="col-3 text-muted">IP Address</div>
-            <div class="col-9">
+        <div class="row detail-row">
+            <div class="col-3 detail-label">IP Address</div>
+            <div class="col-9 detail-value">
                 {{ sonar_request.ip_address }}
             </div>
         </div>
-        <div class="row">
-            <div class="col-3 text-muted">Memory Usage</div>
-            <div class="col-9">
+        <div class="row detail-row">
+            <div class="col-3 detail-label">Memory Usage</div>
+            <div class="col-9 detail-value">
                 {{ sonar_request.details.memory_used|floatformat:2 }} MB
             </div>
         </div>
 
         {% if sonar_request.details.user_info.email %}
-            <div class="row border-top border-1 border-light pt-3">
-                <div class="col-3 text-muted">Auth User</div>
-                <div class="col-9">
+            <div class="row detail-row border-top pt-3 mt-2">
+                <div class="col-3 detail-label">Auth User</div>
+                <div class="col-9 detail-value">
                     Id: <strong>{{ sonar_request.details.user_info.user_id }}</strong>
                     <br>
                     Email: <strong>{{ sonar_request.details.user_info.email }}</strong>

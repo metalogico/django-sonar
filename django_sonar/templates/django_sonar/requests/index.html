@@ -1,14 +1,13 @@
-<div class="card shadow-sm  border-light">
-    <div class="card-header">
+<div class="card">
+    <div class="card-header d-flex align-items-center justify-content-between">
         <h5 class="card-title">Requests</h5>
     </div>
     <div class="card-body">
 
-        <!-- Filter Form -->
         <form method="get" action="{% url 'sonar_requests' %}" class="mb-4" hx-get="{% url 'sonar_requests' %}"
             hx-target="#main-content" hx-swap="innerHTML" hx-push-url="true">
-            <div class="row g-3">
-                <div class="col-md-3">
+            <div class="row g-2 align-items-end">
+                <div class="col-md-2">
                     <label for="verb" class="form-label">Method</label>
                     <select name="verb" id="verb" class="form-select form-select-sm">
                         <option value="">All</option>
@@ -31,9 +30,11 @@
                     <input type="text" name="status" id="status" class="form-control form-control-sm"
                         placeholder="e.g., 200" value="{{ filters.status }}">
                 </div>
-                <div class="col-md-2 d-flex align-items-end gap-2">
-                    <button type="submit" class="btn btn-sm btn-primary">Filter</button>
-                    <a href="{% url 'sonar_requests' %}" class="btn btn-sm btn-primary"
+                <div class="col-md-3 d-flex gap-2">
+                    <button type="submit" class="btn btn-sm btn-primary">
+                        <i class="bi bi-funnel me-1"></i>Filter
+                    </button>
+                    <a href="{% url 'sonar_requests' %}" class="btn btn-sm btn-ghost"
                         hx-get="{% url 'sonar_requests' %}" hx-target="#main-content" hx-swap="innerHTML"
                         hx-push-url="true">Clear</a>
                 </div>

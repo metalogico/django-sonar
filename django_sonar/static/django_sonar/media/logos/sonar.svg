@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <rect width="64" height="64" rx="14" fill="#16a34a"/>
+  <!-- Center dot -->
+  <circle cx="32" cy="32" r="5" fill="white"/>
+  <!-- Sonar rings -->
+  <path d="M32 19a13 13 0 0 1 0 26" stroke="white" stroke-width="3.5" stroke-linecap="round" fill="none" opacity="0.9"/>
+  <path d="M32 19a13 13 0 0 0 0 26" stroke="white" stroke-width="3.5" stroke-linecap="round" fill="none" opacity="0.9"/>
+  <path d="M32 11a21 21 0 0 1 0 42" stroke="white" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.55"/>
+  <path d="M32 11a21 21 0 0 0 0 42" stroke="white" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.55"/>
+</svg>
