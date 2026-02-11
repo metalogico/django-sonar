@@ -1,22 +1,16 @@
-<div class="card shadow-sm  border-light mt-3">
-
+<div class="card mt-3">
     <div class="card-body">
-    
         {% if not session.session_data %}
-            <div class="text-light-grey">No session data</div>
+            <div class="text-muted">No session data</div>
         {% endif %}
 
         {% for ses_k, ses_v in session.session_data.items %}
-
-            <div class="row">
-                <div class="col border-bottom border-1 border-light pb-3">
+            <div class="row detail-row">
+                <div class="col">
                     <strong>{{ ses_k }}:</strong>
                     <code>{{ ses_v }}</code>
                 </div>
             </div>
-
         {% endfor %}
-
     </div>
-
 </div>

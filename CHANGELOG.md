@@ -2,6 +2,30 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.0] - 2026-02-11
+
+### Added
+- **Extensible panel system** - Custom panels can now be registered to extend Sonar's dashboard (contributed by @shanecp)
+- **Events tracking** - New events panel with structured event data and level-aware status pills (contributed by @shanecp)
+- **Logs tracking** - New logs panel with structured context capture and level-aware badges (contributed by @shanecp)
+- **URL-driven navigation** - Sonar panels now support permalinks and URL-driven navigation (contributed by @shanecp)
+- **Dark mode** - Full dark/light theme support with system preference detection and localStorage persistence
+
+### Changed
+- **Complete UI refresh** - Redesigned dashboard with refined typography, spacing, cards, tables, badges, and forms
+- **Improved sidebar** - Cleaner navigation styling with active state indicators
+- **Better empty states** - Contextual icons and messages for all empty panels
+- **Upgraded Bootstrap** - Updated from 5.0.2 to 5.3.8
+- **Upgraded Bootstrap Icons** - Updated to 1.13.1 with local font files
+- **Upgraded HTMX** - Updated from 1.9.11 to 2.0.8
+- **Upgraded sql-formatter** - Updated to latest version
+- **Upgraded Django support** - Added Django 5.1 and 6.0 classifiers
+- **Upgraded Python support** - Added Python 3.13 classifier
+- **Build system** - Switched to setuptools build backend, removed setup.py
+
+### Fixed
+- **Login/denied pages** - Redesigned auth pages with centered layout and proper dark mode support
+
 ## [0.3.0] - 2025-10-08
 
 ### Added

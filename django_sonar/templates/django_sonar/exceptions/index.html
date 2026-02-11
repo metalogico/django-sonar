@@ -1,14 +1,15 @@
-<div class="card shadow-sm  border-light" hx-get="{% url 'sonar_exceptions' %}" hx-trigger="every 5s" hx-swap="outerHTML">
+<div class="card" hx-get="{% url 'sonar_exceptions' %}" hx-trigger="every 5s" hx-swap="outerHTML">
     <div class="card-header">
-        <h5 class="card-title">Queries</h5>
+        <h5 class="card-title">Exceptions</h5>
     </div>
     <div class="card-body">
-
-
         {% if not exceptions %}
-            <div class="text-light-grey">No exceptions found</div>
+            <div class="empty-state">
+                <i class="bi bi-bug"></i>
+                <div>No exceptions found</div>
+            </div>
         {% else %}
-            <table class="table table-dashed table-hover">
+            <table class="table table-hover">
                 <thead>
                 <tr>
                     <th scope="col">Type</th>

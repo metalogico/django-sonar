@@ -1,44 +1,33 @@
-<div class="card shadow-sm  border-light mt-3">
-
+<div class="card mt-3">
     <div class="card-body">
 
         {% if payload.get_payload %}
-
-            <div class="fw-bold text-muted pb-2">
-                GET
-            </div>
-
+            <div class="form-label mb-2">GET</div>
             {% for name, value in payload.get_payload.items %}
-                <div class="row">
-                    <div class="col border-bottom border-1 border-light pb-3">
+                <div class="row detail-row">
+                    <div class="col">
                         <strong>{{ name }}:</strong>
                         <code>{{ value }}</code>
                     </div>
                 </div>
             {% endfor %}
-
         {% else %}
-            <div class="text-light-grey">No GET Payload</div>
+            <div class="text-muted">No GET Payload</div>
         {% endif %}
 
-
         {% if payload.post_payload %}
-
-            <h6>GET</h6>
-
+            <div class="form-label mb-2 mt-3">POST</div>
             {% for name, value in payload.post_payload.items %}
-                <div class="row">
-                    <div class="col border-bottom border-1 border-light pb-3">
-                        <code>{{ name }}: {{ value }}</code>
+                <div class="row detail-row">
+                    <div class="col">
+                        <strong>{{ name }}:</strong>
+                        <code>{{ value }}</code>
                     </div>
                 </div>
             {% endfor %}
-
         {% else %}
-            <div class="text-light-grey">No POST Payload</div>
+            <div class="text-muted mt-3">No POST Payload</div>
         {% endif %}
 
-
     </div>
-
 </div>

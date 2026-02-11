@@ -1,68 +1,436 @@
+/* ============================================
+   Django Sonar — UI Stylesheet
+   ============================================ */
+
 :root {
-    --primary-color: #5DDD8B;
-    --primary-dark: #51c279;
-    --background-color: #f9f9f9;
-    --text-color: #071437;
-    --link-hover-color: #4db874;
-    --bs-card-border-radius: 0.625rem;
+    /* Core palette */
+    --sonar-accent: #16a34a;
+    --sonar-accent-hover: #15803d;
+    --sonar-accent-subtle: #f0fdf4;
+
+    /* Surfaces */
+    --sonar-bg: #f4f5f7;
+    --sonar-surface: #ffffff;
+    --sonar-surface-hover: #f8f9fb;
+    --sonar-border: #e2e5ea;
+    --sonar-border-light: #eef0f3;
+
+    /* Text */
+    --sonar-text: #1a1d23;
+    --sonar-text-secondary: #6b7280;
+    --sonar-text-muted: #9ca3af;
+
+    /* Status colors */
+    --sonar-success: #16a34a;
+    --sonar-warning: #d97706;
+    --sonar-danger: #dc2626;
+    --sonar-info: #0891b2;
+
+    /* Spacing */
+    --sonar-radius: 8px;
+    --sonar-radius-sm: 5px;
+    --sonar-radius-lg: 12px;
+
+    /* Bootstrap overrides */
+    --bs-card-border-radius: var(--sonar-radius-lg);
 }
+
+/* ---- Base ---- */
 
 body {
-    background-color: var(--background-color) !important;
-    color: var(--text-color) !important;
-    font-family: Inter, Helvetica, "sans-serif";
+    background-color: var(--sonar-bg) !important;
+    color: var(--sonar-text) !important;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 0.875rem;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
+
+/* ---- Links ---- */
 
 a {
-    color: var(--primary-color) !important;
-    text-decoration: none; /* Optional: removes underline from links */
-}
-
-.bg-primary {
-    background-color: var(--primary-color) !important;
+    color: var(--sonar-accent) !important;
+    text-decoration: none;
+    transition: color 0.15s ease;
 }
 
 a:hover {
-    color: var(--link-hover-color) !important;
+    color: var(--sonar-accent-hover) !important;
 }
 
-.text-primary {
-    color: var(--primary-color) !important;
+/* ---- Header ---- */
+
+.sonar-header {
+    background: var(--sonar-surface);
+    border-bottom: 1px solid var(--sonar-border);
+    padding: 0.75rem 0;
+    margin-bottom: 1.5rem;
 }
+
+.sonar-logo {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--sonar-text) !important;
+    letter-spacing: -0.01em;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.sonar-logo .logo-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    background: var(--sonar-accent);
+    border-radius: var(--sonar-radius-sm);
+    color: white;
+    font-size: 0.875rem;
+}
+
+.sonar-logo .logo-text {
+    color: var(--sonar-text) !important;
+}
+
+.sonar-logo .logo-text-accent {
+    color: var(--sonar-accent) !important;
+}
+
+/* ---- Buttons ---- */
 
 .btn-primary {
-    background-color: var(--primary-color);
-    color: white !important; /* Ensures text on buttons is readable */
-    border: none; /* Assuming you want button borders removed */
-}
-
-.bg-success {
-    background-color: var(--primary-color) !important;
+    background-color: var(--sonar-accent);
+    border: none;
+    color: white !important;
+    border-radius: var(--sonar-radius-sm);
+    font-weight: 500;
+    font-size: 0.8125rem;
+    padding: 0.375rem 0.875rem;
+    transition: background-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .btn-primary:hover {
-    color: #ffffff !important;
-    background-color: var(--primary-dark) !important;
+    background-color: var(--sonar-accent-hover) !important;
+    color: white !important;
 }
 
-.dark header {
-    background-color: #161b22 !important;
-    border-bottom-color: #161b22 !important;
+.btn-outline-secondary {
+    border-color: var(--sonar-border);
+    color: var(--sonar-text-secondary) !important;
+    font-size: 0.8125rem;
+    border-radius: var(--sonar-radius-sm);
 }
+
+.btn-outline-secondary:hover {
+    background-color: var(--sonar-surface-hover);
+    border-color: var(--sonar-border);
+    color: var(--sonar-text) !important;
+}
+
+.btn-icon {
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--sonar-radius-sm);
+}
+
+.btn-ghost {
+    background: transparent;
+    border: 1px solid var(--sonar-border);
+    color: var(--sonar-text-secondary) !important;
+    border-radius: var(--sonar-radius-sm);
+    padding: 0.375rem 0.75rem;
+    font-size: 0.8125rem;
+    transition: all 0.15s ease;
+}
+
+.btn-ghost:hover {
+    background: var(--sonar-surface-hover);
+    color: var(--sonar-text) !important;
+    border-color: var(--sonar-border);
+}
+
+.btn-danger-ghost {
+    background: transparent;
+    border: 1px solid var(--sonar-border);
+    color: var(--sonar-danger) !important;
+    border-radius: var(--sonar-radius-sm);
+    padding: 0.375rem 0.75rem;
+    font-size: 0.8125rem;
+    transition: all 0.15s ease;
+}
+
+.btn-danger-ghost:hover {
+    background: #fef2f2;
+    border-color: #fecaca;
+    color: var(--sonar-danger) !important;
+}
+
+/* ---- Cards ---- */
 
 .card {
-    background-color: #ffffff !important;
-    border-radius: var(--bs-card-border-radius);
+    background-color: var(--sonar-surface) !important;
+    border: 1px solid var(--sonar-border) !important;
+    border-radius: var(--sonar-radius-lg) !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+    overflow: hidden;
+}
+
+.card-header {
+    background-color: var(--sonar-surface) !important;
+    border-bottom: 1px solid var(--sonar-border-light) !important;
+    padding: 1rem 1.25rem !important;
+    vertical-align: middle !important;
+}
+
+.card-header .card-title {
+    padding: 0 !important;
+    margin: 0 !important;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--sonar-text);
+}
+
+.card-body {
+    padding: 1.25rem;
+}
+
+/* ---- Sidebar navigation ---- */
+
+.sonar-sidebar .card {
+    border: 1px solid var(--sonar-border) !important;
+}
+
+.sonar-sidebar .card-body {
+    padding: 0.375rem !important;
+}
+
+.sonar-sidebar .nav-item .nav-link {
+    color: var(--sonar-text-secondary) !important;
+    font-weight: 500;
+    font-size: 0.8125rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--sonar-radius-sm);
+    margin: 1px 0;
+    transition: all 0.15s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.sonar-sidebar .nav-item .nav-link:hover {
+    background-color: var(--sonar-surface-hover);
+    color: var(--sonar-text) !important;
+}
+
+.sonar-sidebar .nav-item .nav-link.active {
+    background-color: var(--sonar-accent) !important;
+    color: white !important;
+}
+
+.sonar-sidebar .nav-item .nav-link i {
+    font-size: 1rem;
+    width: 1.25rem;
+    text-align: center;
+}
+
+/* ---- Tables ---- */
+
+.table {
+    margin-bottom: 0;
+    font-size: 0.8125rem;
+}
+
+.table thead th {
+    font-weight: 600;
+    color: var(--sonar-text-secondary);
+    text-transform: uppercase;
+    font-size: 0.6875rem;
+    letter-spacing: 0.05em;
+    padding: 0.625rem 0.75rem;
+    border-bottom: 1px solid var(--sonar-border) !important;
+    white-space: nowrap;
+}
+
+.table tbody td {
+    padding: 0.625rem 0.75rem;
+    vertical-align: middle;
+    border-bottom: 1px solid var(--sonar-border-light) !important;
+    color: var(--sonar-text);
+}
+
+.table tbody tr:last-child td {
+    border-bottom: none !important;
+}
+
+.table-hover tbody tr:hover {
+    background-color: var(--sonar-surface-hover) !important;
+}
+
+.table>:not(caption)>*>* {
+    border-bottom: 0 !important;
+}
+
+/* ---- Badges ---- */
+
+.badge {
+    font-weight: 500;
+    font-size: 0.6875rem;
+    padding: 0.25em 0.625em;
+    border-radius: 4px;
+    letter-spacing: 0.02em;
+}
+
+.bg-success {
+    background-color: var(--sonar-success) !important;
+}
+
+.bg-warning {
+    background-color: var(--sonar-warning) !important;
+    color: white !important;
+}
+
+.bg-danger {
+    background-color: var(--sonar-danger) !important;
+}
+
+.bg-info {
+    background-color: var(--sonar-info) !important;
+    color: white !important;
+}
+
+.bg-secondary {
+    background-color: #6b7280 !important;
 }
 
 .bg-primary {
-    background-color: var(--primary-color) !important;
+    background-color: var(--sonar-accent) !important;
 }
 
-.nav .nav-item .nav-link.active {
-    background-color: var(--primary-color);
-    color: white !important; /* Ensures text on buttons is readable */
+/* ---- Detail view tabs ---- */
+
+.nav-detail {
+    border-bottom: 1px solid var(--sonar-border);
+    gap: 0;
+    margin-top: 0.5rem;
+    margin-bottom: 0;
 }
+
+.nav-detail .nav-item .nav-link {
+    color: var(--sonar-text-secondary) !important;
+    font-weight: 500;
+    font-size: 0.8125rem;
+    padding: 0.625rem 1rem;
+    border-radius: 0;
+    border-bottom: 2px solid transparent;
+    transition: all 0.15s ease;
+    background: none !important;
+}
+
+.nav-detail .nav-item .nav-link:hover {
+    color: var(--sonar-text) !important;
+    background: var(--sonar-surface-hover) !important;
+}
+
+.nav-detail .nav-item .nav-link.active {
+    color: var(--sonar-accent) !important;
+    background: none !important;
+    border-bottom-color: var(--sonar-accent);
+}
+
+/* ---- Detail key-value rows ---- */
+
+.detail-row {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--sonar-border-light);
+}
+
+.detail-row:last-child {
+    border-bottom: none;
+}
+
+.detail-label {
+    color: var(--sonar-text-secondary);
+    font-size: 0.8125rem;
+}
+
+.detail-value {
+    font-size: 0.8125rem;
+}
+
+/* ---- Forms ---- */
+
+.form-control,
+.form-select {
+    border: 1px solid var(--sonar-border);
+    border-radius: var(--sonar-radius-sm);
+    font-size: 0.8125rem;
+    color: var(--sonar-text);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--sonar-accent);
+    box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.15);
+}
+
+.form-label {
+    font-weight: 500;
+    font-size: 0.75rem;
+    color: var(--sonar-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 0.25rem;
+}
+
+/* ---- Pagination ---- */
+
+.pagination .page-link {
+    border: 1px solid var(--sonar-border);
+    color: var(--sonar-text-secondary);
+    font-size: 0.8125rem;
+    padding: 0.375rem 0.75rem;
+    border-radius: var(--sonar-radius-sm);
+    margin: 0 2px;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: var(--sonar-accent);
+    border-color: var(--sonar-accent);
+    color: white;
+}
+
+.pagination .page-link:hover {
+    background-color: var(--sonar-surface-hover);
+    border-color: var(--sonar-border);
+    color: var(--sonar-text);
+}
+
+/* ---- Code & pre ---- */
+
+code {
+    font-size: 0.8125rem;
+    color: var(--sonar-accent-hover);
+    background: var(--sonar-accent-subtle);
+    padding: 0.125em 0.375em;
+    border-radius: 3px;
+}
+
+pre {
+    font-size: 0.8125rem;
+    background: #f8f9fb;
+    padding: 1rem;
+    border-radius: var(--sonar-radius);
+    border: 1px solid var(--sonar-border-light);
+}
+
+/* ---- Utilities ---- */
 
 .w-50px {
     width: 50px !important;
@@ -71,33 +439,113 @@ a:hover {
 }
 
 .fw-small {
-    font-size: 10px !important;
+    font-size: 0.6875rem !important;
 }
 
 .text-light-grey {
-    color: #bec6cc !important;
+    color: var(--sonar-text-muted) !important;
 }
 
-.card-header {
-    padding-top: 20px !important;
-    padding-bottom: 20px !important;
-    vertical-align: middle !important;
-    background-color: #ffffff !important;
+.text-primary {
+    color: var(--sonar-accent) !important;
 }
 
-.card-header .card-title {
-    padding: 0 !important;
-    margin: 0 !important;
+/* ---- Footer ---- */
+
+.sonar-footer {
+    color: var(--sonar-text-muted);
+    font-size: 0.6875rem;
+    padding: 1rem 0 0.5rem;
 }
 
-.table thead tr {
-    border-bottom: 1px dashed silver !important;
+/* ---- Empty states ---- */
+
+.empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--sonar-text-muted);
 }
 
-.table>:not(caption)>*>* {
-    border-bottom: 0 !important;
+.empty-state i {
+    font-size: 2rem;
+    margin-bottom: 0.75rem;
+    display: block;
+    opacity: 0.4;
 }
 
-pre {
+/* ---- Login page ---- */
+
+.sonar-login-wrapper {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--sonar-bg);
+}
+
+.sonar-login-card {
+    width: 100%;
+    max-width: 380px;
+}
+
+.sonar-login-card .card {
+    border: 1px solid var(--sonar-border) !important;
+}
+
+.sonar-login-card .card-body {
+    padding: 2rem;
+}
+
+.sonar-login-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 2rem;
+    color: var(--sonar-text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.sonar-login-title .logo-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    background: var(--sonar-accent);
+    border-radius: var(--sonar-radius);
+    color: white;
     font-size: 1rem;
+}
+
+/* ---- Unread row highlight ---- */
+
+tr.sonar-unread {
+    background-color: var(--sonar-accent-subtle);
+}
+
+tr.sonar-unread:hover {
+    background-color: #dcfce7 !important;
+}
+
+/* ---- Scrollbar (subtle) ---- */
+
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
 }
