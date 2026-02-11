@@ -28,6 +28,10 @@ class RequestsMiddleware:
         if self.path_filter.should_exclude(request.path):
             return self.get_response(request)
 
+        # Ensure request-scoped event/log buffers start clean.
+        utils.reset_sonar_events()
+        utils.reset_sonar_logs()
+
         # Reset query log at the beginning of the request
         connection.queries_log.clear()
 
@@ -133,6 +137,8 @@ class RequestsMiddleware:
         collector.save_queries(executed_queries)
         collector.save_headers(request_headers)
         collector.save_session(session_data)
+        collector.save_events()
+        collector.save_logs()
         collector.save_dumps()
         collector.save_exceptions()
 

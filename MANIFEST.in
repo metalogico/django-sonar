@@ -1,0 +1,6 @@
+include README.md
+include LICENSE
+
+recursive-include django_sonar/templates *.html
+recursive-include django_sonar/static *
+recursive-include django_sonar/migrations *.py

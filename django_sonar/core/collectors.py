@@ -27,6 +27,34 @@ class DataCollector:
         """
         self.sonar_request_uuid = sonar_request_uuid
 
+    def save_entry(self, category, payload, request_uuid=None, tags=None, meta=None):
+        """
+        Save a generic SonarData entry for any category.
+
+        :param category: Entry category key
+        :param payload: JSON-serializable payload body
+        :param request_uuid: Optional SonarRequest UUID override
+        :param tags: Optional list of tags
+        :param meta: Optional metadata dictionary
+        """
+        target_request_uuid = request_uuid or self.sonar_request_uuid
+        if not target_request_uuid:
+            raise ValueError('A request UUID is required to save a sonar entry.')
+
+        data = payload
+        if tags is not None or meta is not None:
+            data = {'payload': payload}
+            if tags is not None:
+                data['tags'] = tags
+            if meta is not None:
+                data['meta'] = meta
+
+        SonarData.objects.create(
+            sonar_request_id=target_request_uuid,
+            category=category,
+            data=make_json_serializable(data)
+        )
+
     def save_details(self, user_info, view_func, middlewares_used, memory_diff):
         """
         Save request details (user, view, memory, middlewares).
@@ -42,11 +70,7 @@ class DataCollector:
             'middlewares_used': middlewares_used,
             'memory_used': memory_diff
         }
-        SonarData.objects.create(
-            sonar_request_id=self.sonar_request_uuid,
-            category='details',
-            data=make_json_serializable(details)
-        )
+        self.save_entry('details', details)
 
     def save_payload(self, get_payload, post_payload):
         """
@@ -59,11 +83,7 @@ class DataCollector:
             'get_payload': get_payload,
             'post_payload': post_payload
         }
-        SonarData.objects.create(
-            sonar_request_id=self.sonar_request_uuid,
-            category='payload',
-            data=make_json_serializable(payload)
-        )
+        self.save_entry('payload', payload)
 
     def save_queries(self, executed_queries):
         """
@@ -75,11 +95,7 @@ class DataCollector:
             'executed_queries': executed_queries,
             'query_count': len(executed_queries)
         }
-        SonarData.objects.create(
-            sonar_request_id=self.sonar_request_uuid,
-            category='queries',
-            data=make_json_serializable(queries)
-        )
+        self.save_entry('queries', queries)
 
     def save_headers(self, request_headers):
         """
@@ -90,11 +106,7 @@ class DataCollector:
         headers = {
             'request_headers': request_headers
         }
-        SonarData.objects.create(
-            sonar_request_id=self.sonar_request_uuid,
-            category='headers',
-            data=make_json_serializable(headers)
-        )
+        self.save_entry('headers', headers)
 
     def save_session(self, session_data):
         """
@@ -105,11 +117,7 @@ class DataCollector:
         session = {
             'session_data': session_data
         }
-        SonarData.objects.create(
-            sonar_request_id=self.sonar_request_uuid,
-            category='session',
-            data=make_json_serializable(session)
-        )
+        self.save_entry('session', session)
 
     def save_dumps(self):
         """
@@ -119,11 +127,7 @@ class DataCollector:
         """
         sonar_dumps = utils.get_sonar_dump()
         for dump in sonar_dumps:
-            SonarData.objects.create(
-                sonar_request_id=self.sonar_request_uuid,
-                category='dumps',
-                data=make_json_serializable(dump)
-            )
+            self.save_entry('dumps', dump)
         utils.reset_sonar_dump()
 
     def save_exceptions(self):
@@ -134,9 +138,27 @@ class DataCollector:
         """
         sonar_exceptions = utils.get_sonar_exceptions()
         for ex in sonar_exceptions:
-            SonarData.objects.create(
-                sonar_request_id=self.sonar_request_uuid,
-                category='exception',
-                data=make_json_serializable(ex)
-            )
+            self.save_entry('exception', ex)
         utils.reset_sonar_exceptions()
+
+    def save_events(self):
+        """
+        Save structured events from thread local storage.
+
+        Retrieves events from utils.get_sonar_events() and resets them.
+        """
+        sonar_events = utils.get_sonar_events()
+        for event in sonar_events:
+            self.save_entry('events', event)
+        utils.reset_sonar_events()
+
+    def save_logs(self):
+        """
+        Save structured log entries from thread local storage.
+
+        Retrieves logs from utils.get_sonar_logs() and resets them.
+        """
+        sonar_logs = utils.get_sonar_logs()
+        for log_entry in sonar_logs:
+            self.save_entry('logs', log_entry)
+        utils.reset_sonar_logs()

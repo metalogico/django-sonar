@@ -1,10 +1,31 @@
-from django.urls import path, include
+from django.urls import path
 
-from django_sonar.views import SonarHomeView, SonarLoginView, SonarLogoutView, SonarRequestListView, \
-    SonarExceptionsListView, SonarDumpsListView, SonarSignalsListView, SonarQueriesListView, SonarRequestDetailView, \
-    SonarRequestClearView, SonarDetailPayloadView, SonarDetailHeadersView, SonarDetailSessionView, \
-    SonarDetailMiddlewaresView, SonarDetailQueriesView, SonarDetailDumpsView, SonarDetailExceptionView, SonarDeniedView, \
-    SonarQueriesDetailView, SonarRequestTableView
+from django_sonar.views import (
+    GenericPanelDetailView,
+    GenericPanelListView,
+    SonarDeniedView,
+    SonarDetailDumpsView,
+    SonarDetailExceptionView,
+    SonarDetailHeadersView,
+    SonarDetailMiddlewaresView,
+    SonarDetailPayloadView,
+    SonarDetailQueriesView,
+    SonarDetailSessionView,
+    SonarDumpsListView,
+    SonarEventsListView,
+    SonarExceptionsListView,
+    SonarHomeView,
+    SonarLoginView,
+    SonarLogsListView,
+    SonarLogoutView,
+    SonarQueriesDetailView,
+    SonarQueriesListView,
+    SonarRequestClearView,
+    SonarRequestDetailView,
+    SonarRequestListView,
+    SonarRequestTableView,
+    SonarSignalsListView,
+)
 
 urlpatterns = [
     # general
@@ -13,13 +34,19 @@ urlpatterns = [
     path('logout/', SonarLogoutView.as_view(), name='sonar_logout'),
     path('denied/', SonarDeniedView.as_view(), name='sonar_denied'),
 
-    # navigations
+    # generic panel rendering
+    path('p/<str:panel_key>/', GenericPanelListView.as_view(), name='sonar_panel_list'),
+    path('p/<str:panel_key>/<uuid:uuid>/', GenericPanelDetailView.as_view(), name='sonar_panel_detail'),
+
+    # legacy navigations
     path('requests/', SonarRequestListView.as_view(), name='sonar_requests'),
     path('requests/table/', SonarRequestTableView.as_view(), name='sonar_requests_table'),
     path('requests/<uuid:uuid>/', SonarRequestDetailView.as_view(), name='sonar_request_detail'),
     path('exceptions/', SonarExceptionsListView.as_view(), name='sonar_exceptions'),
     path('queries/', SonarQueriesListView.as_view(), name='sonar_queries'),
     path('dumps/', SonarDumpsListView.as_view(), name='sonar_dumps'),
+    path('events/', SonarEventsListView.as_view(), name='sonar_events'),
+    path('logs/', SonarLogsListView.as_view(), name='sonar_logs'),
     path('signals/', SonarSignalsListView.as_view(), name='sonar_signals'),
 
     # queries detail
