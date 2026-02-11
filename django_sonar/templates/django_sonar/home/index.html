@@ -46,55 +46,39 @@
                     <div class="card shadow-sm  border-0">
                         <div class="card-body p-0 m-0">
 
-                            <ul class="nav nav-pills nav-fill flex-column">
+                            <ul class="nav nav-pills nav-fill flex-column" id="sonar-panel-nav">
+                                {% for panel in sonar_panels %}
+                                {% if panel.key == 'signals' %}
+                                {# Temporarily hidden from the left sidebar. #}
+                                {% else %}
                                 <li class="nav-item text-start">
-                                    <a class="nav-link active" href="{% url 'sonar_requests' %}" hx-trigger="click"
-                                        hx-swap="innerHTML" hx-get="{% url 'sonar_requests' %}"
-                                        hx-target="#main-content">
-                                        <i class="bi bi-arrow-left-right me-1"></i>
-                                        Requests
+                                    <a class="nav-link {% if panel.key == active_panel_key %}active{% endif %}"
+                                        href="{{ panel.get_list_url }}"
+                                        hx-trigger="click"
+                                        hx-swap="innerHTML"
+                                        hx-get="{{ panel.get_list_url }}"
+                                        hx-target="#main-content"
+                                        hx-push-url="true"
+                                        data-panel-key="{{ panel.key }}">
+                                        <i class="bi {{ panel.icon }} me-1"></i>
+                                        {{ panel.label }}
                                     </a>
                                 </li>
-                                <li class="nav-item text-start">
-                                    <a class="nav-link" href="{% url 'sonar_exceptions' %}" hx-trigger="click"
-                                        hx-swap="innerHTML" hx-get="{% url 'sonar_exceptions' %}"
-                                        hx-target="#main-content">
-                                        <i class="bi bi-exclamation-triangle me-1"></i>
-                                        Exceptions
-                                    </a>
-                                </li>
-                                <li class="nav-item text-start">
-                                    <a class="nav-link" href="{% url 'sonar_dumps' %}" hx-get="{% url 'sonar_dumps' %}"
-                                        hx-swap="innerHTML" hx-trigger="click" hx-target="#main-content">
-                                        <i class="bi bi-terminal-fill me-1"></i>
-                                        Dumps
-                                    </a>
-                                </li>
-                                <li class="nav-item text-start">
-                                    <a class="nav-link" href="{% url 'sonar_queries' %}"
-                                        hx-get="{% url 'sonar_queries' %}" hx-trigger="click" hx-swap="innerHTML"
-                                        hx-target="#main-content">
-                                        <i class="bi bi-database me-1"></i>
-                                        Queries
-                                    </a>
-                                </li>
-                                <li class="nav-item text-start">
-                                    <a class="nav-link" href="{% url 'sonar_signals' %}"
-                                        hx-get="{% url 'sonar_signals' %}" hx-trigger="click" hx-swap="innerHTML"
-                                        hx-target="#main-content">
-                                        <i class="bi bi-diagram-3 me-1"></i>
-                                        Signals
-                                    </a>
-                                </li>
+                                {% endif %}
+                                {% empty %}
+                                <li class="nav-item text-start px-2 py-3 text-muted">No panels configured</li>
+                                {% endfor %}
                             </ul>
 
                         </div>
                     </div>
                 </div>
                 <div class="col-lg-10 col-sm-12" id="main-content">
+                    {% if initial_content_url %}
                     <script>
-                        htmx.ajax('GET', "{% url 'sonar_requests' %}", { target: '#main-content' });
+                        htmx.ajax('GET', '{{ initial_content_url|escapejs }}', { target: '#main-content' });
                     </script>
+                    {% endif %}
                 </div>
             </div>
             <div class="text-center fw-lighter mt-2">
@@ -103,24 +87,54 @@
         </main>
     </div>
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
+        document.addEventListener('DOMContentLoaded', function () {
             var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            tooltipTriggerList.map(function (tooltipTriggerEl) {
                 return new bootstrap.Tooltip(tooltipTriggerEl)
             })
 
-            document.querySelectorAll('.nav-link').forEach(function (link) {
+            function getPanelKeyFromPath(pathname) {
+                if (pathname.indexOf('/sonar/p/') !== -1) {
+                    var pPath = pathname.split('/sonar/p/')[1] || ''
+                    return pPath.split('/')[0] || null
+                }
+                if (pathname.indexOf('/sonar/requests') !== -1) return 'requests'
+                if (pathname.indexOf('/sonar/queries') !== -1) return 'queries'
+                if (pathname.indexOf('/sonar/exceptions') !== -1) return 'exceptions'
+                if (pathname.indexOf('/sonar/dumps') !== -1) return 'dumps'
+                if (pathname.indexOf('/sonar/signals') !== -1) return 'signals'
+                if (pathname.indexOf('/sonar/events') !== -1) return 'events'
+                if (pathname.indexOf('/sonar/logs') !== -1) return 'logs'
+                return null
+            }
+
+            function syncActivePanel() {
+                var panelKey = getPanelKeyFromPath(window.location.pathname)
+                if (!panelKey) return
+
+                document.querySelectorAll('#sonar-panel-nav .nav-link').forEach(function (item) {
+                    item.classList.remove('active')
+                })
+
+                var target = document.querySelector('#sonar-panel-nav .nav-link[data-panel-key="' + panelKey + '"]')
+                if (target) {
+                    target.classList.add('active')
+                }
+            }
+
+            document.querySelectorAll('#sonar-panel-nav .nav-link').forEach(function (link) {
                 link.addEventListener('click', function () {
-                    // Remove active class from all menu items
-                    document.querySelectorAll('.nav-link').forEach(function (item) {
-                        item.classList.remove('active');
-                    });
-                    // Add active class to the clicked menu item
-                    this.classList.add('active');
-                });
-            });
+                    document.querySelectorAll('#sonar-panel-nav .nav-link').forEach(function (item) {
+                        item.classList.remove('active')
+                    })
+                    this.classList.add('active')
+                })
+            })
 
-
+            document.body.addEventListener('htmx:pushedIntoHistory', syncActivePanel)
+            document.body.addEventListener('htmx:replacedInHistory', syncActivePanel)
+            document.body.addEventListener('htmx:historyRestore', syncActivePanel)
+            syncActivePanel()
         })
     </script>
     <script src="{% static 'django_sonar/js/sql-formatter.min.js' %}"></script>

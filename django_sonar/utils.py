@@ -80,6 +80,34 @@ def reset_sonar_exceptions():
     _thread_locals.sonar_exceptions = []
 
 
+def get_sonar_events():
+    return getattr(_thread_locals, 'sonar_events', [])
+
+
+def add_sonar_event(event):
+    sonar_events = get_sonar_events()
+    sonar_events += [event]
+    _thread_locals.sonar_events = sonar_events
+
+
+def reset_sonar_events():
+    _thread_locals.sonar_events = []
+
+
+def get_sonar_logs():
+    return getattr(_thread_locals, 'sonar_logs', [])
+
+
+def add_sonar_log(log_entry):
+    sonar_logs = get_sonar_logs()
+    sonar_logs += [log_entry]
+    _thread_locals.sonar_logs = sonar_logs
+
+
+def reset_sonar_logs():
+    _thread_locals.sonar_logs = []
+
+
 def sonar(*args):
     sonar_dump = get_sonar_dump()
     for arg in args:

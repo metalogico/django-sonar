@@ -1,0 +1,9 @@
+<div id="events-panel">
+    {% if not events %}
+        <div>No events found</div>
+    {% else %}
+        {% for event in events %}
+            <div class="event-row">{{ event.data.name }}</div>
+        {% endfor %}
+    {% endif %}
+</div>
