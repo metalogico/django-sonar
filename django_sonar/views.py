@@ -2,7 +2,8 @@ from django.contrib.auth.views import LoginView, LogoutView
 from django.http import Http404, HttpResponseRedirect
 from django.template.response import TemplateResponse
 from django.urls import reverse, reverse_lazy
-from django.views.generic import DetailView, RedirectView, TemplateView
+from django.views import View
+from django.views.generic import DetailView, TemplateView
 
 from django_sonar.mixins import SuperuserRequiredMixin
 from django_sonar.models import SonarData, SonarRequest
@@ -131,12 +132,15 @@ class SonarHomeView(SuperuserRequiredMixin, SonarPanelsContextMixin, TemplateVie
     active_panel_key = 'requests'
 
 
-class SonarRequestClearView(SuperuserRequiredMixin, RedirectView):
-    url = reverse_lazy('sonar_index')
+class SonarRequestClearView(SuperuserRequiredMixin, View):
+    """Clear all Sonar telemetry. POST-only to avoid CSRF via GET."""
+
+    def post(self, request, *args, **kwargs):
+        SonarRequest.objects.all().delete()
+        return HttpResponseRedirect(reverse('sonar_index'))
 
     def get(self, request, *args, **kwargs):
-        SonarRequest.objects.all().delete()
-        return super().get(request, *args, **kwargs)
+        return HttpResponseRedirect(reverse('sonar_index'))
 
 
 #

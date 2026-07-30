@@ -11,7 +11,7 @@
             <div class="row detail-row">
                 <div class="col">
                     <code id="query_index_{{ forloop.counter0 }}">
-                        {{ query.sql|safe }}
+                        {{ query.sql }}
                     </code>
                     <div>
                         <span class="text-muted fw-small">{{ query.time|floatformat:2 }}ms</span>

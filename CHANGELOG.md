@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.2] - 2026-07-30
+
+### Security
+- **Stored XSS in SQL query detail** ([GHSA-9vgp-2j2c-w2mx](https://github.com/metalogico/django-sonar/security/advisories/GHSA-9vgp-2j2c-w2mx)) — remove `|safe` when rendering captured SQL and dumps so attacker-controlled query parameters are HTML-escaped in the dashboard
+- **Clear all data** — `GET /sonar/clear/` no longer deletes records; clearing requires POST with CSRF
+
+### Fixed
+- Escape SQL and dump content in query detail, request detail queries, and dumps list templates
+
 ## [0.5.0] - 2026-02-11
 
 ### Added
