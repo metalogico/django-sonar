@@ -7,6 +7,7 @@ headers, sessions, user info, IP addresses, memory usage, etc.
 
 from django.test import override_settings
 from django.contrib.auth.models import AnonymousUser
+from django.http import HttpResponse
 from django_sonar.middlewares.requests import RequestsMiddleware
 from django_sonar.models import SonarRequest, SonarData
 from django_sonar import utils
@@ -198,10 +199,11 @@ class MiddlewareDataCaptureTestCase(BaseMiddlewareTestCase):
         request = self._add_session_to_request(request)
         request.user = self.user
         
-        # Add some dumps
-        utils.sonar('test_value_1', {'key': 'value'})
+        def response_with_dumps(_request):
+            utils.sonar('test_value_1', {'key': 'value'})
+            return HttpResponse('OK')
         
-        middleware = RequestsMiddleware(self.get_response)
+        middleware = RequestsMiddleware(response_with_dumps)
         response = middleware(request)
         
         # Verify dumps were captured
@@ -223,13 +225,16 @@ class MiddlewareDataCaptureTestCase(BaseMiddlewareTestCase):
         request = self._add_session_to_request(request)
         request.user = self.user
         
-        middleware = RequestsMiddleware(self.get_response)
-        
-        # Simulate an exception
-        try:
-            raise ValueError("Test error message")
-        except ValueError as e:
-            middleware.process_exception(request, e)
+        middleware = None
+
+        def response_with_exception(_request):
+            try:
+                raise ValueError("Test error message")
+            except ValueError as exc:
+                middleware.process_exception(_request, exc)
+            return HttpResponse('OK')
+
+        middleware = RequestsMiddleware(response_with_exception)
         
         # Process the request
         response = middleware(request)

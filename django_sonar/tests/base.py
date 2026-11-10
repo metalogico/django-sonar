@@ -25,6 +25,9 @@ class BaseMiddlewareTestCase(TestCase):
         
         # Mock get_response callable
         self.get_response = Mock(return_value=HttpResponse('OK', status=200))
+
+        # Helper and collector unit tests run inside an explicit capture scope.
+        self.capture_token = utils.start_capture_context()
         
         # Reset thread locals
         utils.reset_sonar_dump()
@@ -47,6 +50,8 @@ class BaseMiddlewareTestCase(TestCase):
     def tearDown(self):
         """Clean up after tests"""
         self.mock_resolve_patcher.stop()
+        utils.end_capture_context(self.capture_token)
+        super().tearDown()
 
     def _add_session_to_request(self, request):
         """Helper to add session to request"""

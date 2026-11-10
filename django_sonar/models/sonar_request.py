@@ -22,3 +22,8 @@ class SonarRequest(models.Model):
     class Meta:
         app_label = 'django_sonar'
         db_table = 'sonar_requests'
+        indexes = [
+            models.Index(fields=['-created_at'], name='sonar_req_created_idx'),
+            models.Index(fields=['verb', '-created_at'], name='sonar_req_verb_created_idx'),
+            models.Index(fields=['status', '-created_at'], name='sonar_req_stat_created_idx'),
+        ]

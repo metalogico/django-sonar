@@ -98,4 +98,5 @@ class RequestParserTestCase(BaseMiddlewareTestCase):
         
         result = RequestParser.get_body_payload(request)
         self.assertIn('_parse_error', result)
-        self.assertIn('_raw_body', result)
+        self.assertNotIn('_raw_body', result)
+        self.assertFalse(result['_raw_body_captured'])

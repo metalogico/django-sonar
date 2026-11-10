@@ -1,4 +1,4 @@
-<div class="card" hx-get="{% url 'sonar_dumps' %}" hx-trigger="every 5s" hx-swap="outerHTML">
+<div class="card" hx-get="{% url 'sonar_dumps' %}?page={{ page_obj.number|default:1 }}" hx-trigger="every 5s" hx-swap="outerHTML">
     <div class="card-header">
         <h5 class="card-title">Dumps</h5>
     </div>
@@ -31,6 +31,7 @@
                 {% endfor %}
                 </tbody>
             </table>
+            {% include 'django_sonar/includes/pagination.html' %}
         {% endif %}
 
     </div>

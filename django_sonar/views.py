@@ -1,5 +1,6 @@
 from django.contrib.auth.views import LoginView, LogoutView
 from django.http import Http404, HttpResponseRedirect
+from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
 from django.urls import reverse, reverse_lazy
 from django.views import View
@@ -89,6 +90,9 @@ class SonarRequestDetailRedirectMixin:
                 reverse('sonar_request_detail', kwargs={'uuid': self.kwargs.get('uuid')})
             )
         return super().get(request, *args, **kwargs)
+
+    def get_sonar_request(self):
+        return get_object_or_404(SonarRequest, uuid=self.kwargs.get('uuid'))
 
 
 class GenericPanelMixin:
@@ -258,9 +262,9 @@ class SonarRequestDetailView(SuperuserRequiredMixin, SonarDualModeMixin, DetailV
     active_panel_key = 'requests'
 
     def get_object(self):
-        record = SonarRequest.objects.get(uuid=self.kwargs.get('uuid'))
+        record = get_object_or_404(SonarRequest, uuid=self.kwargs.get('uuid'))
         record.is_read = True
-        record.save()
+        record.save(update_fields=['is_read'])
 
         # get details from SonarData
         details = SonarData.objects.filter(sonar_request_id=record.uuid, category='details').first()
@@ -274,12 +278,16 @@ class SonarQueriesDetailView(SuperuserRequiredMixin, SonarDualModeMixin, DetailV
     active_panel_key = 'queries'
 
     def get_object(self):
-        queries = SonarData.objects.filter(
+        queries = get_object_or_404(
+            SonarData,
             category='queries',
             sonar_request_id=self.kwargs.get('uuid'),
-        ).first()
-        executed_queries = queries.data['executed_queries'] if queries else []
-        single_query = executed_queries[self.kwargs.get('index')] or {}
+        )
+        executed_queries = queries.data.get('executed_queries', [])
+        index = self.kwargs.get('index')
+        if index >= len(executed_queries):
+            raise Http404('Query index is out of range.')
+        single_query = dict(executed_queries[index] or {})
         single_query['sonar_request_id'] = self.kwargs.get('uuid')
         return single_query
 
@@ -289,6 +297,7 @@ class SonarDetailPayloadView(SuperuserRequiredMixin, SonarRequestDetailRedirectM
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        self.get_sonar_request()
         payload = SonarData.objects.filter(sonar_request_id=self.kwargs.get('uuid'), category='payload').first()
         context['payload'] = payload.data if payload else {}
         return context
@@ -299,6 +308,7 @@ class SonarDetailHeadersView(SuperuserRequiredMixin, SonarRequestDetailRedirectM
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        self.get_sonar_request()
         headers = SonarData.objects.filter(sonar_request_id=self.kwargs.get('uuid'), category='headers').first()
         context['headers'] = headers.data if headers else {}
         return context
@@ -309,6 +319,7 @@ class SonarDetailQueriesView(SuperuserRequiredMixin, SonarRequestDetailRedirectM
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        self.get_sonar_request()
         queries = SonarData.objects.filter(sonar_request_id=self.kwargs.get('uuid'), category='queries').first()
         context['queries'] = queries.data if queries else {}
         return context
@@ -319,6 +330,7 @@ class SonarDetailSessionView(SuperuserRequiredMixin, SonarRequestDetailRedirectM
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        self.get_sonar_request()
         session = SonarData.objects.filter(sonar_request_id=self.kwargs.get('uuid'), category='session').first()
         context['session'] = session.data if session else {}
         return context
@@ -329,6 +341,7 @@ class SonarDetailMiddlewaresView(SuperuserRequiredMixin, SonarRequestDetailRedir
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        self.get_sonar_request()
         middlewares = SonarData.objects.filter(sonar_request_id=self.kwargs.get('uuid'), category='details').first()
         context['middlewares'] = middlewares.data if middlewares else {}
         return context
@@ -339,6 +352,7 @@ class SonarDetailDumpsView(SuperuserRequiredMixin, SonarRequestDetailRedirectMix
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        self.get_sonar_request()
         context['dumps'] = []
         dumps = SonarData.objects.filter(sonar_request_id=self.kwargs.get('uuid'), category='dumps').all()
         for dump in dumps:
@@ -352,6 +366,7 @@ class SonarDetailExceptionView(SuperuserRequiredMixin, SonarRequestDetailRedirec
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        self.get_sonar_request()
         exception = SonarData.objects.filter(sonar_request_id=self.kwargs.get('uuid'), category='exception').first()
         context['exception'] = exception.data if exception else {}
         return context

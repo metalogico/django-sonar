@@ -1,8 +1,9 @@
 from collections import OrderedDict
 
-from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.module_loading import import_string
+
+from django_sonar.conf import get_sonar_setting
 
 from .base import SonarPanel
 from .builtins import get_builtin_panels
@@ -12,8 +13,7 @@ _loaded_custom_paths = None
 
 
 def _get_custom_panel_paths():
-    sonar_settings = getattr(settings, 'DJANGO_SONAR', {})
-    custom_paths = sonar_settings.get('custom_panels', [])
+    custom_paths = get_sonar_setting('custom_panels')
 
     if custom_paths is None:
         return tuple()

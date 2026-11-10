@@ -41,6 +41,13 @@ If you use this project, please consider giving it a ⭐.
 
 ## 🛠️ How to install 
 
+### Requirements
+
+- Python 3.10–3.14
+- Django 5.2.19+, 6.0.10+, or 6.1.3+ (within the 5.2, 6.0, and 6.1 series)
+
+These minimum patch versions include the [November 2026 Django security fixes](https://www.djangoproject.com/weblog/2026/nov/03/security-releases/). DjangoSonar also requires sqlparse 0.6.1 or later.
+
 1. First you need to install the package:
 
 ```bash
@@ -108,10 +115,22 @@ DJANGO_SONAR = {
         'internal_api_key',
         'private_data',
     ],
+    # Raw text/XML/binary bodies are not stored unless explicitly enabled.
+    'capture_raw_body': False,
+    'raw_body_max_bytes': 10_000,
+    # Bound per-request query details while retaining the real query count.
+    'max_queries_per_request': 500,
+    # Page size for built-in dashboard panels.
+    'page_size': 25,
+    # Disable this to avoid enabling Python's global tracemalloc collector.
+    'capture_memory': True,
 }
 ```
 
 The filtering is case-insensitive and works with partial matches (e.g., `user_password`, `my_api_key` will also be filtered).
+The complete `Cookie` header is always masked. Structured dictionaries and lists are filtered recursively, including JSON arrays at the document root.
+
+`DJANGO_SONAR` is optional. When omitted, DjangoSonar uses the safe defaults above with no path exclusions. Raw bodies may contain secrets that cannot be identified reliably from field names, so enable `capture_raw_body` only when needed.
 
 ### 💾 Separate Database Configuration (Recommended)
 
@@ -166,11 +185,14 @@ python manage.py migrate
 
 ```python
 MIDDLEWARE = [
-  ...
+  'django.contrib.sessions.middleware.SessionMiddleware',
+  'django.contrib.auth.middleware.AuthenticationMiddleware',
   'django_sonar.middlewares.requests.RequestsMiddleware',
   ...
 ]
 ```
+
+Place DjangoSonar after Django's session and authentication middleware so it can capture user and session details. Telemetry failures are fail-open: they are logged but never replace the application response.
 
 ## 😎 How to use
 
@@ -181,6 +203,14 @@ To access the dashboard you will point your browser to the /sonar/ url (but you 
 You could use DjangoSonar in production too, since it gives you an historical overview of all the requests, but be sure to clear the data and disable it when you have debugged the problem.
 
 🔔 If you forget to disable/clear DjangoSonar you could end up with several gigabytes of data collected. So please use it with caution when in production 🔔 
+
+Prune old telemetry explicitly from a scheduler or maintenance job:
+
+```bash
+python manage.py clear_sonar_data --older-than 14 --no-input
+```
+
+Use `--database sonar_db` to override the database selected by the configured router. Omitting `--older-than` clears all Sonar data after confirmation.
 
 **Only authenticated superusers can access sonar.** If you are trying to access the dashboard with a wrong type of user, you will see an error page, otherwise you should see the DjangoSonar login page.    
 
@@ -275,6 +305,7 @@ Tracked fields:
 These entries are shown in the **Logs** panel.
 
 > Note: events/logs are buffered per request and persisted by the Sonar middleware at request end.
+> Calls made outside an active monitored request are ignored. Sensitive keys in structured payloads/context are masked, but free-form log messages, exception messages, and dump strings cannot be sanitized reliably.
 
 ## 🧩 Custom Panels (For Developers)
 
@@ -288,9 +319,9 @@ Create a module in your app, for example `myapp/sonar_panels.py`:
 from django_sonar.panels import SonarPanel
 
 
-class EventsPanel(SonarPanel):
-    key = 'events'
-    label = 'Events'
+class AuditEventsPanel(SonarPanel):
+    key = 'audit_events'
+    label = 'Audit events'
     icon = 'bi-calendar-event'
     category = 'events'
     list_template = 'myapp/sonar/events_list.html'
@@ -312,7 +343,7 @@ DJANGO_SONAR = {
         '/admin/',
     ],
     'custom_panels': [
-        'myapp.sonar_panels.EventsPanel',
+        'myapp.sonar_panels.AuditEventsPanel',
     ],
 }
 ```
@@ -323,8 +354,8 @@ Create the template referenced by `list_template`, for example `myapp/templates/
 
 DjangoSonar renders this template at:
 
-- `/sonar/p/events/` (list)
-- `/sonar/p/events/<uuid>/` (detail, only if `detail_template` is defined)
+- `/sonar/p/audit_events/` (list)
+- `/sonar/p/audit_events/<uuid>/` (detail, only if `detail_template` is defined)
 
 The panel is also automatically shown in the Sonar sidebar navigation.
 
@@ -336,7 +367,7 @@ For the example above, save entries with category `events` (for example via midd
 
 ## ⚖️ License
 
-DjangoSonar is open-sourced software licensed under the [MIT license](LICENSE.md).
+DjangoSonar is open-sourced software licensed under the [MIT license](LICENSE).
 
 
 ## 🍺 Donations

@@ -2,6 +2,33 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.6.0] - 2026-11-10
+
+### Security
+- Require patched Django releases (5.2.19+, 6.0.10+, or 6.1.3+) and sqlparse 0.6.1+ in package metadata
+- Update pinned Django, Requests, urllib3, idna, and certifi dependencies and require setuptools 84.1.0+ for builds
+- Audit pinned dependencies with pip-audit in CI
+- Mask cookie headers and recursively filter sensitive keys in structured payloads, events, and log contexts
+- Disable unstructured raw-body capture by default and add a configurable byte limit for explicit opt-in
+- Isolate dump, event, log, and exception buffers per request with `ContextVar`
+
+### Added
+- Query capture across configured database aliases with `DEBUG=False` support and bounded details
+- Configurable pagination for built-in panels and database indexes for common dashboard queries
+- `clear_sonar_data --older-than DAYS` and `--database ALIAS`
+- CI coverage for supported Python/Django combinations and package-content verification
+
+### Changed
+- Sonar collection is fail-open and no longer changes the application response when telemetry persistence fails
+- Minimum supported versions are now Python 3.10 and Django 5.2
+- The complete test runner now discovers every test using the active Python interpreter
+
+### Fixed
+- JSON and unstructured POST bodies are parsed according to content type
+- Missing request/query details now return 404 instead of server errors
+- Separate-database cleanup uses the alias selected by Django's database router
+- Exception table column alignment and query database/duration display
+
 ## [0.5.2] - 2026-07-30
 
 ### Security

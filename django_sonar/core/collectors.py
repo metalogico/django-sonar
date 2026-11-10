@@ -13,19 +13,22 @@ Handles saving request data to SonarData model with different categories:
 
 from django_sonar.models import SonarData
 from django_sonar import utils
+from django_sonar.core.filters import SensitiveDataFilter
 from django_sonar.utils import make_json_serializable
 
 
 class DataCollector:
     """Handles collection and persistence of request data"""
 
-    def __init__(self, sonar_request_uuid):
+    def __init__(self, sonar_request_uuid, sensitive_filter=None, using=None):
         """
         Initialize collector with request UUID.
         
         :param sonar_request_uuid: UUID of the SonarRequest instance
         """
         self.sonar_request_uuid = sonar_request_uuid
+        self.sensitive_filter = sensitive_filter or SensitiveDataFilter()
+        self.using = using
 
     def save_entry(self, category, payload, request_uuid=None, tags=None, meta=None):
         """
@@ -49,10 +52,14 @@ class DataCollector:
             if meta is not None:
                 data['meta'] = meta
 
-        SonarData.objects.create(
+        manager = SonarData.objects
+        if self.using:
+            manager = manager.using(self.using)
+
+        manager.create(
             sonar_request_id=target_request_uuid,
             category=category,
-            data=make_json_serializable(data)
+            data=make_json_serializable(self.sensitive_filter.filter(data))
         )
 
     def save_details(self, user_info, view_func, middlewares_used, memory_diff):
@@ -85,7 +92,7 @@ class DataCollector:
         }
         self.save_entry('payload', payload)
 
-    def save_queries(self, executed_queries):
+    def save_queries(self, executed_queries, query_count=None, truncated=False):
         """
         Save database queries executed during request.
         
@@ -93,7 +100,8 @@ class DataCollector:
         """
         queries = {
             'executed_queries': executed_queries,
-            'query_count': len(executed_queries)
+            'query_count': len(executed_queries) if query_count is None else query_count,
+            'queries_truncated': truncated,
         }
         self.save_entry('queries', queries)
 

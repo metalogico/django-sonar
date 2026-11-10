@@ -77,7 +77,7 @@ class MiddlewareBasicTestCase(BaseMiddlewareTestCase):
 
     @override_settings(DJANGO_SONAR={'excludes': []})
     def test_sonar_request_uuid_persistence(self):
-        """Test sonar_request_uuid is properly set and used"""
+        """Test all data uses the request-local UUID without middleware state."""
         request = self.factory.get('/test/')
         request = self._add_session_to_request(request)
         request.user = self.user
@@ -85,8 +85,7 @@ class MiddlewareBasicTestCase(BaseMiddlewareTestCase):
         middleware = RequestsMiddleware(self.get_response)
         response = middleware(request)
         
-        # Verify UUID was set
-        self.assertIsNotNone(middleware.sonar_request_uuid)
+        self.assertFalse(hasattr(middleware, 'sonar_request_uuid'))
         
         # Verify all SonarData entries reference the same UUID
         sonar_request = SonarRequest.objects.first()

@@ -1,7 +1,8 @@
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 
+from django_sonar.conf import get_sonar_setting
 from django_sonar.models import SonarRequest
-from .base import SonarPanel
+from .base import PaginatedSonarPanel, SonarPanel
 
 
 class RequestsPanel(SonarPanel):
@@ -33,7 +34,7 @@ class RequestsPanel(SonarPanel):
 
         sonar_requests = sonar_requests.order_by('-created_at')
 
-        paginator = Paginator(sonar_requests, cls.paginate_by)
+        paginator = Paginator(sonar_requests, get_sonar_setting('page_size'))
         try:
             sonar_requests_page = paginator.page(page)
         except PageNotAnInteger:
@@ -54,7 +55,7 @@ class RequestsPanel(SonarPanel):
         }
 
 
-class ExceptionsPanel(SonarPanel):
+class ExceptionsPanel(PaginatedSonarPanel):
     key = 'exceptions'
     label = 'Exceptions'
     icon = 'bi-exclamation-triangle'
@@ -65,7 +66,7 @@ class ExceptionsPanel(SonarPanel):
     order = 20
 
 
-class DumpsPanel(SonarPanel):
+class DumpsPanel(PaginatedSonarPanel):
     key = 'dumps'
     label = 'Dumps'
     icon = 'bi-terminal-fill'
@@ -88,10 +89,11 @@ class QueriesPanel(SonarPanel):
 
     @classmethod
     def get_list_context(cls, request):
-        queries = cls.get_queryset(request)
+        paginator = Paginator(cls.get_queryset(request), get_sonar_setting('page_size'))
+        page_obj = paginator.get_page(request.GET.get('page', 1))
         executed = []
 
-        for query in queries:
+        for query in page_obj:
             query_rows = query.data.get('executed_queries', [])
             for index, executed_query in enumerate(query_rows, start=0):
                 row = dict(executed_query)
@@ -102,6 +104,7 @@ class QueriesPanel(SonarPanel):
 
         return {
             'queries': executed,
+            'page_obj': page_obj,
         }
 
 
@@ -114,7 +117,7 @@ class SignalsPanel(SonarPanel):
     order = 70
 
 
-class EventsPanel(SonarPanel):
+class EventsPanel(PaginatedSonarPanel):
     key = 'events'
     label = 'Events'
     icon = 'bi-calendar-event'
@@ -125,7 +128,7 @@ class EventsPanel(SonarPanel):
     order = 50
 
 
-class LogsPanel(SonarPanel):
+class LogsPanel(PaginatedSonarPanel):
     key = 'logs'
     label = 'Logs'
     icon = 'bi-journal-text'
