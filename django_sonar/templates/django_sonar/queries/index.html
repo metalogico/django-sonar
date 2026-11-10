@@ -1,4 +1,4 @@
-<div class="card" hx-get="{% url 'sonar_queries' %}" hx-trigger="every 5s" hx-swap="outerHTML">
+<div class="card" hx-get="{% url 'sonar_queries' %}?page={{ page_obj.number|default:1 }}" hx-trigger="every 5s" hx-swap="outerHTML">
     <div class="card-header">
         <h5 class="card-title">Queries</h5>
     </div>
@@ -13,6 +13,7 @@
                 <thead>
                 <tr>
                     <th scope="col">Query</th>
+                    <th scope="col">Database</th>
                     <th scope="col">Duration</th>
                     <th scope="col">Happened</th>
                     <th class="w-50px">&nbsp;</th>
@@ -23,7 +24,8 @@
                 <tr {% if query.index == 0 %}class="bg-light"{% endif %}>
                     <td>
                         <code>{{ query.sql|truncatechars:90 }}</code></td>
-                    <td>{{ query.time }}ms</td>
+                    <td><code>{{ query.alias|default:'default' }}</code></td>
+                    <td>{{ query.time }}s</td>
                     <td>{{ query.created_at|timesince }}</td>
                     <td>
                         <a class="btn btn-sm btn-icon btn-primary"
@@ -39,6 +41,7 @@
                 {% endfor %}
                 </tbody>
             </table>
+            {% include 'django_sonar/includes/pagination.html' %}
         {% endif %}
 
     </div>

@@ -7,7 +7,14 @@ from decimal import Decimal
 from datetime import datetime, date, time
 from uuid import UUID, uuid4
 from django.test import TestCase
-from django_sonar.utils import make_json_serializable, sonar, get_sonar_dump, reset_sonar_dump
+from django_sonar.utils import (
+    end_capture_context,
+    get_sonar_dump,
+    make_json_serializable,
+    reset_sonar_dump,
+    sonar,
+    start_capture_context,
+)
 
 
 class JSONSerializationTestCase(TestCase):
@@ -15,6 +22,7 @@ class JSONSerializationTestCase(TestCase):
 
     def setUp(self):
         """Set up test fixtures"""
+        self.capture_token = start_capture_context()
         reset_sonar_dump()
 
     def test_decimal_serialization(self):
@@ -181,3 +189,5 @@ class JSONSerializationTestCase(TestCase):
     def tearDown(self):
         """Clean up after tests"""
         reset_sonar_dump()
+        end_capture_context(self.capture_token)
+        super().tearDown()

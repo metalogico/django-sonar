@@ -1,7 +1,10 @@
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
+from django.core.paginator import Paginator
+from django.shortcuts import get_object_or_404
 from django.urls import reverse
 
+from django_sonar.conf import get_sonar_setting
 from django_sonar.models import SonarData
 
 
@@ -84,7 +87,20 @@ class SonarPanel:
     @classmethod
     def get_detail_context(cls, request, uuid_value):
         """Build context for detail rendering."""
-        entry = cls.get_queryset(request).filter(sonar_request_id=uuid_value).first()
+        entry = get_object_or_404(cls.get_queryset(request), sonar_request_id=uuid_value)
         return {
             cls.detail_context_name: entry,
+        }
+
+
+class PaginatedSonarPanel(SonarPanel):
+    """Opt-in panel base that returns a bounded page of entries."""
+
+    @classmethod
+    def get_list_context(cls, request):
+        paginator = Paginator(cls.get_queryset(request), get_sonar_setting('page_size'))
+        page_obj = paginator.get_page(request.GET.get('page', 1))
+        return {
+            cls.list_context_name: page_obj,
+            'page_obj': page_obj,
         }

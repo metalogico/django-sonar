@@ -1,11 +1,11 @@
 asgiref==3.11.1
 build==1.4.0
-certifi==2026.10.19
+certifi==2026.10.23
 charset-normalizer==3.4.4
-Django==6.0.2
+Django==6.0.10
 docutils==0.22.4
 id==1.6.1
-idna==3.15
+idna==3.20
 jaraco.classes==3.4.0
 jaraco.context==6.1.0
 jaraco.functools==4.4.0
@@ -18,10 +18,10 @@ packaging==26.0
 Pygments==2.20.0
 pyproject_hooks==1.2.0
 readme_renderer==44.0
-requests==2.32.5
+requests==2.34.2
 requests-toolbelt==1.0.0
 rfc3986==2.0.0
 rich==14.3.2
-sqlparse==0.6.0
+sqlparse==0.6.1
 twine==6.2.0
 urllib3==2.8.0

@@ -1,6 +1,7 @@
 <div class="card mt-3">
     <div class="card-header">
         <h6 class="card-title">Total Queries: <span class="badge bg-info">{{ queries.query_count|default:0 }}</span></h6>
+        {% if queries.queries_truncated %}<div class="small text-warning">Stored details were limited for this request.</div>{% endif %}
     </div>
     <div class="card-body">
         {% if not queries.executed_queries %}
@@ -14,7 +15,7 @@
                         {{ query.sql }}
                     </code>
                     <div>
-                        <span class="text-muted fw-small">{{ query.time|floatformat:2 }}ms</span>
+                        <span class="text-muted fw-small">{{ query.alias|default:'default' }} · {{ query.time|floatformat:3 }}s</span>
                     </div>
                 </div>
             </div>

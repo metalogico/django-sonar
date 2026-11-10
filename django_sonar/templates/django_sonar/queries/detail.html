@@ -3,6 +3,7 @@
         <h5 class="card-title">Query detail</h5>
     </div>
     <div class="card-body">
+      <div class="text-muted small mb-2">Database: {{ sonar_query.alias|default:'default' }}</div>
       <code id="formatted_sql_query">
           {{ sonar_query.sql }}
       </code>

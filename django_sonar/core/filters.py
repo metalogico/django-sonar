@@ -11,7 +11,8 @@ Handles masking of sensitive data in payloads, headers, and session data.
 """
 
 import re
-from django.conf import settings
+
+from django_sonar.conf import get_sonar_setting
 
 
 class PathFilter:
@@ -31,7 +32,7 @@ class PathFilter:
         :return: List of tuples (pattern_type, pattern) where pattern_type 
                  is 'regex' or 'literal'
         """
-        excluded_paths = settings.DJANGO_SONAR.get('excludes', [])
+        excluded_paths = get_sonar_setting('excludes')
         compiled = []
         
         for pattern in excluded_paths:
@@ -91,14 +92,15 @@ class SensitiveDataFilter:
         'session_id',
         'csrf',
         'private_key',
+        'cookie',
+        'set-cookie',
     ]
     
     MASK_VALUE = '***FILTERED***'
     
     def __init__(self):
         """Initialize filter with configured sensitive fields"""
-        sonar_settings = getattr(settings, 'DJANGO_SONAR', {})
-        custom_fields = sonar_settings.get('sensitive_fields', [])
+        custom_fields = get_sonar_setting('sensitive_fields')
         
         # Combine default and custom fields, convert to lowercase for case-insensitive matching
         self.sensitive_fields = set(
@@ -128,6 +130,14 @@ class SensitiveDataFilter:
         
         return False
     
+    def filter(self, data):
+        """Recursively filter mappings and sequences, including root lists."""
+        if isinstance(data, dict):
+            return self.filter_dict(data)
+        if isinstance(data, (list, tuple)):
+            return self._filter_list(data)
+        return data
+
     def filter_dict(self, data):
         """
         Recursively filter sensitive data from a dictionary.
@@ -142,12 +152,8 @@ class SensitiveDataFilter:
         for key, value in data.items():
             if self._is_sensitive_key(key):
                 filtered[key] = self.MASK_VALUE
-            elif isinstance(value, dict):
-                filtered[key] = self.filter_dict(value)
-            elif isinstance(value, (list, tuple)):
-                filtered[key] = self._filter_list(value)
             else:
-                filtered[key] = value
+                filtered[key] = self.filter(value)
         
         return filtered
     
@@ -160,11 +166,6 @@ class SensitiveDataFilter:
         """
         filtered = []
         for item in data:
-            if isinstance(item, dict):
-                filtered.append(self.filter_dict(item))
-            elif isinstance(item, (list, tuple)):
-                filtered.append(self._filter_list(item))
-            else:
-                filtered.append(item)
+            filtered.append(self.filter(item))
         
         return filtered if isinstance(data, list) else tuple(filtered)

@@ -1,11 +1,45 @@
 import json
-import threading
+from contextvars import ContextVar
+from dataclasses import dataclass, field
 from decimal import Decimal
 from datetime import datetime, date, time
 from uuid import UUID
 
-_thread_locals = threading.local()
-_thread_locals.sonar_dump = []
+
+@dataclass
+class _CaptureContext:
+    dumps: list = field(default_factory=list)
+    exceptions: list = field(default_factory=list)
+    events: list = field(default_factory=list)
+    logs: list = field(default_factory=list)
+
+
+_capture_context = ContextVar('django_sonar_capture_context', default=None)
+
+
+def start_capture_context():
+    """Start an isolated capture context and return its reset token."""
+    return _capture_context.set(_CaptureContext())
+
+
+def end_capture_context(token):
+    """Restore the context that preceded ``start_capture_context``."""
+    _capture_context.reset(token)
+
+
+def is_capture_active():
+    return _capture_context.get() is not None
+
+
+def _get_buffer(name):
+    context = _capture_context.get()
+    return getattr(context, name) if context is not None else None
+
+
+def _reset_buffer(name):
+    buffer = _get_buffer(name)
+    if buffer is not None:
+        buffer.clear()
 
 
 def make_json_serializable(obj):
@@ -59,65 +93,67 @@ def make_json_serializable(obj):
 
 
 def get_sonar_dump():
-    return getattr(_thread_locals, 'sonar_dump', [])
+    return _get_buffer('dumps') or []
 
 
 def reset_sonar_dump():
-    _thread_locals.sonar_dump = []
+    _reset_buffer('dumps')
 
 
 def get_sonar_exceptions():
-    return getattr(_thread_locals, 'sonar_exceptions', [])
+    return _get_buffer('exceptions') or []
 
 
 def add_sonar_exception(exception):
-    sonar_exceptions = get_sonar_exceptions()
-    sonar_exceptions += [exception]
-    _thread_locals.sonar_exceptions = sonar_exceptions
+    sonar_exceptions = _get_buffer('exceptions')
+    if sonar_exceptions is not None:
+        sonar_exceptions.append(exception)
 
 
 def reset_sonar_exceptions():
-    _thread_locals.sonar_exceptions = []
+    _reset_buffer('exceptions')
 
 
 def get_sonar_events():
-    return getattr(_thread_locals, 'sonar_events', [])
+    return _get_buffer('events') or []
 
 
 def add_sonar_event(event):
-    sonar_events = get_sonar_events()
-    sonar_events += [event]
-    _thread_locals.sonar_events = sonar_events
+    sonar_events = _get_buffer('events')
+    if sonar_events is not None:
+        sonar_events.append(event)
 
 
 def reset_sonar_events():
-    _thread_locals.sonar_events = []
+    _reset_buffer('events')
 
 
 def get_sonar_logs():
-    return getattr(_thread_locals, 'sonar_logs', [])
+    return _get_buffer('logs') or []
 
 
 def add_sonar_log(log_entry):
-    sonar_logs = get_sonar_logs()
-    sonar_logs += [log_entry]
-    _thread_locals.sonar_logs = sonar_logs
+    sonar_logs = _get_buffer('logs')
+    if sonar_logs is not None:
+        sonar_logs.append(log_entry)
 
 
 def reset_sonar_logs():
-    _thread_locals.sonar_logs = []
+    _reset_buffer('logs')
 
 
 def sonar(*args):
-    sonar_dump = get_sonar_dump()
+    sonar_dump = _get_buffer('dumps')
+    if sonar_dump is None:
+        return
+
     for arg in args:
         try:
             # Convert to JSON-serializable format
             serializable_arg = make_json_serializable(arg)
             # Verify it's actually serializable
             json.dumps(serializable_arg)
-            sonar_dump += [serializable_arg]
-            _thread_locals.sonar_dump = sonar_dump
+            sonar_dump.append(serializable_arg)
         except (TypeError, ValueError) as e:
             # If still not serializable, store error info
             print(f"SONAR: Argument of type {type(arg).__name__} could not be serialized: {e}")

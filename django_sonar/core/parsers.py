@@ -42,7 +42,7 @@ class RequestParser:
         return request.headers.get('X-Requested-With') == 'XMLHttpRequest'
 
     @staticmethod
-    def get_body_payload(request):
+    def get_body_payload(request, capture_raw_body=False, raw_body_max_bytes=10_000):
         """
         Get request body data for all HTTP methods (POST, PUT, PATCH, etc.)
         
@@ -56,14 +56,16 @@ class RequestParser:
         """
         if request.method == 'GET':
             return {}
-        
-        # For POST requests, use the standard request.POST
-        if request.method == 'POST':
-            return request.POST.dict()
-        
-        # For PUT, PATCH, and other methods, parse the request body
+
         try:
-            content_type = request.content_type.lower()
+            content_type = (request.content_type or '').lower()
+
+            # Django parses standard POST forms and multipart uploads for us.
+            if request.method == 'POST' and (
+                'application/x-www-form-urlencoded' in content_type
+                or 'multipart/form-data' in content_type
+            ):
+                return request.POST.dict()
             
             # Handle JSON content
             if 'application/json' in content_type:
@@ -91,23 +93,45 @@ class RequestParser:
             
             # For other content types, store raw body (truncated for safety)
             else:
+                content_length = request.META.get('CONTENT_LENGTH')
+                metadata = {'_content_type': content_type}
+                if content_length:
+                    try:
+                        metadata['_body_size'] = int(content_length)
+                    except (TypeError, ValueError):
+                        pass
+
+                if not capture_raw_body:
+                    metadata['_raw_body_captured'] = False
+                    return metadata
+
                 if hasattr(request, 'body') and request.body:
-                    body_str = request.body.decode('utf-8', errors='ignore')
-                    # Truncate large bodies to avoid storage issues
-                    if len(body_str) > 10000:
-                        body_str = body_str[:10000] + '... (truncated)'
-                    return {'_raw_body': body_str, '_content_type': content_type}
-                return {}
+                    raw_body = request.body
+                    truncated = len(raw_body) > raw_body_max_bytes
+                    body_str = raw_body[:raw_body_max_bytes].decode('utf-8', errors='replace')
+                    if truncated:
+                        body_str += '... (truncated)'
+                    metadata['_raw_body'] = body_str
+                    metadata['_raw_body_truncated'] = truncated
+                return metadata
                 
-        except (json.JSONDecodeError, UnicodeDecodeError, Exception) as e:
-            # If parsing fails, store error info and raw body (truncated)
-            try:
-                body_str = request.body.decode('utf-8', errors='ignore')[:1000]
-            except:
-                body_str = '<unable to decode>'
-            
-            return {
+        except Exception as e:
+            result = {
                 '_parse_error': str(e),
-                '_raw_body': body_str,
-                '_content_type': getattr(request, 'content_type', 'unknown')
+                '_content_type': getattr(request, 'content_type', 'unknown'),
             }
+            if not capture_raw_body:
+                result['_raw_body_captured'] = False
+                return result
+
+            try:
+                raw_body = request.body
+                truncated = len(raw_body) > raw_body_max_bytes
+                result['_raw_body'] = raw_body[:raw_body_max_bytes].decode(
+                    'utf-8', errors='replace'
+                )
+                result['_raw_body_truncated'] = truncated
+            except Exception:
+                result['_raw_body'] = '<unable to decode>'
+                result['_raw_body_truncated'] = False
+            return result

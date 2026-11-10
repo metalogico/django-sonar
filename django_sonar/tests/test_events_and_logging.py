@@ -16,12 +16,14 @@ class EventAndLoggingHelpersTestCase(TestCase):
 
     def setUp(self):
         super().setUp()
+        self.capture_token = utils.start_capture_context()
         utils.reset_sonar_events()
         utils.reset_sonar_logs()
 
     def tearDown(self):
         utils.reset_sonar_events()
         utils.reset_sonar_logs()
+        utils.end_capture_context(self.capture_token)
         super().tearDown()
 
     def test_sonar_event_queues_structured_event(self):

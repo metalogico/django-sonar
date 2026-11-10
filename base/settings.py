@@ -77,7 +77,16 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    },
+    # Additional aliases exercise multi-database behavior in the package test suite.
+    'other': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'other.sqlite3',
+    },
+    'sonar_db': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'sonar.sqlite3',
+    },
 }
 
 
